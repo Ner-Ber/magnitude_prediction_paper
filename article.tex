@@ -1,0 +1,223 @@
+\documentclass[pdflatex]{sn-jnl}
+\jyear{2024}
+\usepackage{multibib}
+\newcites{m}{Methods References}
+\usepackage[superscript]{cite}
+\usepackage{caption}
+\bibliographystyle{unsrt}
+\bibliographystylem{unsrt} 
+\raggedbottom
+
+% Remove numbering from sections and subsections, as requested in decision email.
+\setcounter{secnumdepth}{0}
+
+
+\newcommand{\yohai}[1]{{\textcolor{red}{#1}}}
+\newcommand{\neri}[1]{{\textcolor{cyan}{#1}}}
+
+
+\begin{document}
+
+\title[Running Title]{Using past seismicity to predict the magnitude of future earthquakes \newline or \newline Does an earthquake “know” how big it’s going to be? A neural-net aided study}
+
+\author[1,2]{\fnm{Neri} \sur{Berman}}\email{neriberman@gmail.com}
+\author[2]{\fnm{Oleg} \sur{Zlydenko}}
+\author[2]{\fnm{Oren} \sur{Gilon}}
+\author[1]{\fnm{Yohai} \sur{Bar-Sinai}}\email{ybarsinai@gmail.com}
+
+\affil[1]{\orgdiv{Department of Physics}, \orgname{Tel-Aviv University}, \orgaddress{\city{Tel-Aviv}, \country{Israel}}}
+\affil[2]{\orgdiv{Google Research}, \orgname{Google}, \orgaddress{\city{Tel-Aviv}, \country{Israel}}}
+
+
+\abstract{
+Earthquake occurrence is notoriously difficult to predict. Salient features of the statistical properties of the timing and location of earthquakes, i.e. spatiotemporal clustering, can be relatively well captured by point-process models. However, very little is known regarding the magnitude of future events, and it is deeply debated whether it is possible to predict the magnitude of an earthquake before it starts, both due to the lack of information about the fault condition and to the inherent complexity of rupture dynamics. Consequently, even state of the art forecasting models typically assume no knowledge about the magnitude of future events, besides the time-independent Gutenberg Richter (GR) distribution, which describes the marginal distribution over wide regions and long times. This approach implicitly assumes that earthquake magnitudes are independent of seismic history and are identically distributed. In this work we challenge this view by showing that information about the magnitude of an upcoming earthquake can be directly extracted from the seismic history. We present a neural network-based model for probabilistic forecasting of future magnitudes based on cataloged properties: hypocentral locations, occurrence times and magnitudes of past earthquakes. Our history-dependent model outperforms stationary and quasi-stationary state of the art GR-based benchmarks, in real catalogs in Southern California, Japan and New-Zealand.  This demonstrates that earthquake catalogs contain information about the magnitude of future earthquakes, prior to their occurrence. We conclude by proposing methods to apply the model in characterization of the preparatory phase of earthquakes, and in operational hazard alert and earthquake forecasting systems.
+}
+
+\keywords{}
+
+\maketitle
+
+\neri{comment by Neri} \newline
+\yohai{comment by Yohai}
+
+
+\section{Introduction} \label{sec:introduction}
+
+Earthquake forecasting is a long-standing scientific and technological challenge, often deemed unrealistic due to the inherent complexity of earthquake processes \cite{geller_earthquakes_1997, bernard_earthquake_1999} (cite nature debate on earthquake prediction? EQs cannot be predicted Kagen?). Research since the late 19th century has provided much phenomenological insight about the spatiotemporal statistics of earthquakes. This includes various characteristics of spatial and temporal clustering (cite Omori, Kagan, benzion \& Zaliapin, many others, ), which can be incorporated into stochastic prediction schemes (ETAS papers, Hardebeck etal Ann Rev 2024, Meade on NN aftershock location, some CFS paper). These forecasting methods focus on the rate, and sometimes the location, of earthquake occurrence. These spatiotemporal properties are almost always treated independently from the magnitude, an assumption known as separability (cite and read Rathbun, 1993; Schoenberg, 2004). That is, while seismic history is used to inform the location and rate of future earthquakes, i.e.~by assuming some phenomenological description of spatiotemporal clustering, the magnitude of future events is determined by drawing values from the Gutenberg-Richter (GR) distribution or its variants (Gutenberg and Richter, 1944;  a kagen tapered GR, some spatiotemporal variation of GR, Ogata's magnitude prediction variational GR paper as well?). Importantly, this distribution does not depend on the seismic history, implying that, conditioned on the fact that an earthquake occurs, its magnitude is taken to be independent of the rate and location of past events. %Such stochastic models, coupled with the separability assumption, imply that earthquake magnitude emergence is a stochastic process, independent of seismic history and spatial distribution, suggesting  
+
+
+\neri{This entire paragraph going on about SOC, perhaps to long and should be inserted as a sentence somewhere?}
+This modeling approach, implicitly assuming that faults hold no information about an earthquake magnitude before its occurrence, is not a naive or uninformed choice. On the contrary, it is supported by a broad range of physical models which describe earthquake statistics as a critical phenomenon (cite OFC, Bak's papers, Sornette 91, Sornette 2006, Wyart's new stuff). These models posit that faults evolve (``self-organize'') towards a critical state, where events emerge stochastically and their magnitude follows a power-law distribution which is scale-free and self-similar, akin to physical systems in the vicinity of a phase transition. Under this paradigm, determining the magnitude of an event requires a full microscopic knowledge of the system's state, due to the chaotic nature of rupture dynamics. In accord, point-process models predict (stochastically) the location and timing of earthquakes, but their magnitude is drawn from a constant or slowly evolving distribution (cite ETAS, other magnitude models). 
+
+While it is intelectually compelling, the assumption of separability is not necessarily true. Indeed, the magnitude of an earthquake is a property of the rupture process, which is governed by the frictional properties of the fault and the stress field, which in turn depend on slip history in a deterministic manner, albeit intangibly complicated. Therefore, the assumption of magnitude separability is not a priori justified, and its validity should be tested empirically. Information about an earthquake magnitude exists before its initiation, but may be inaccessible using our current experimental or analytic tools. In this work we directly address this question, and ask whether some information about the magnitude of a given earthquake can be extracted from regional seismic history.
+
+\neri{(short literature review)}
+
+Here we address this question directly by constructing a neural-based model that predicts the magnitude of a given earthquake, given the short and log term seismic history prior to its occurrence. Importantly, our model is not tasked with predicting the timing and location of the event, as they are explicitly provided to the model. Thus, we separate out the task of predicting the nucleation of events and isolate the question of magnitude predictability. If our model performs better than a random draw from a GR distribution or its variants, as we will indeed demonstrate is the case, we assert that at least some information about the magnitude of an earthquake is extractable from cataloged properties alone. 
+
+This contribution has two important consequences. From a fundamental point of view, it challenges the self-organized-criticality viewpoint of earthquake magnitude emergence, which posits that magnitudes are inherently unpredictable. Second, it suggests that the separability assumption, which is widely applied in earthquake forecasting, may be replaced by a more nuanced model that incorporates the seismic history into the magnitude prediction. This may lead to improved forecasting models, and potentially also be used to identify precursory signals in the seismic history of an earthquake.
+
+% paradigm of earthquake  This both   . We assert that the standard hypocenter catalog alone contains sufficient information to predict future earthquake magnitudes with better-than-random accuracy. This contradicts the common view that such catalogs represent a stochastic process of earthquake magnitude occurrence (cite, perhaps Beroza etal Nat Comm 2021? their claim is that you need a ML generated catalog better predict earthquake properties). The presented results demonstrate that incorporating spatial features and seismic history into magnitude forecasting yields an information gain, thereby answering the question posed above. 
+
+We construct an encoder-decoder neural network (NN). Our model uses as input a hypocenter catalog to construct a latent representation of the seismic state at a specific timestamp. Then, the latent representation is passed, together with  a space-time coordinate query of a future earthquake, into a decoder that outputs a parameterized probability density function (pdf) of the earthquake. See \ref{fig:architecture} and caption for detailed description of the neural network's architecture. We optimize the model parameters to maximize the log likelihood (LL) of the true magnitude label, by using the loss function $\mathcal{L}$:
+\begin{equation}
+    \mathcal{L} = -\langle \log{ \left( p_{\textbf{x}_i, t_i} \left( m_i \right) \right) } \rangle\ ,
+    \label{eq:loss_function}
+\end{equation}
+where $p_{\textbf{x}_i, t_i}$ is the probability function returned by the model for the space-time coordinates $\textbf{x}_i, t_i$ (i.e. the ``query coordinates''), $m_i$ the corresponding to the actual magnitude of the $i^{th}$ earthquake and $\langle \cdot\rangle$ stands for the empirical average over the data set. We use the \yohai{kamawarakskakaskasasi} (cite, refer to methods/SI) parameterized family of probability distributions, which is defined by \yohai{N} parameters. This family smoothly can interpolate between exponential distribution, like GR, and localized distributions whose mass is concentrated around a specific value. This allows the model to output both an ``ignorant'' prediction, essentially resembling the GR distribution, and more confident predictions localized around a given magnitude.
+
+We train the model on four distinct earthquake catalogs to assess the performance across diverse seismogenic regions: Hauksson et al. (cite) and SCSN (cite) for Southern California, GeoNet (cite) for New Zealand, and the JMA catalog (cite) for [Region 1, Region 2...] (refer to Supplementary Figure and Table for details). While all four catalogs encompass highly active seismic zones, they are compiled using various measurement methodologies (e.g.? cite?) and exhibit varying data quality. A separate model is trained for each region, with identical loss function and parameterization of the pdf. 
+
+Model performance is evaluated over a time span that was not included in training. The presented metrics demonstrate that our model consistently and significantly outperforms all benchmarks across all test regions, indicating an information gain in forecasting earthquake magnitudes prior to their occurrence. \neri{I think this is a good place to add that we conclude that there is some preparatory phase.}
+%This finding directly suggests that the seismic system undergoes preparatory processes tailored to the impending event's magnitude before its initiation. Examining these results across multiple catalogs and regions highlights the robustness of our methodology and the generalizability of our conclusion, paving the way for further exploration of earthquake predictability.
+
+\begin{figure}[h!]
+	\centering
+        \includegraphics[width=1\textwidth]{figures/intro_fig.pdf}
+	\caption{
+ Architecture of the magnitude prediction neural network model. \textbf{a} The input catalog is encoded with a set of predefined feature functions at multiple timestamps. These features are then used as an input to an LSTM network to create an encoded latent representation of the catalog. The latent representation is combined with a space-time query and fed into a fully connected neural network for decoding the data. The decoding network outputs a set of parameters defining a probability density function for each time-space query coordinates. \textbf{b} The pdfs from 100 random samples from the test set of the Hauksson catalog, color coded by the magnitude of the earthquake that has occurred in the corresponding query coordinates. The black dashed line shows Gutenberg Richter distribution, fitted for the train set.
+}
+\label{fig:architecture}
+\end{figure}
+
+
+
+\section{Results} \label{sec:results}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/raw_results_hauksson.pdf}
+    \caption{
+        Caption.
+    }
+    \label{fig:architecture}
+\end{figure}
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/info_over_time_hauksson.pdf}
+    \caption{
+        Caption.
+    }
+    \label{fig:architecture}
+\end{figure}
+
+
+\begin{figure}[h!]
+    \centering
+    \fbox{
+        \rule{1\textwidth}{0pt}\rule{0pt}{8ex}
+        FIGURE OF SPATIAL DISTRIBUTION OF GAIN.
+    }
+    \caption{
+        Caption.
+    }
+    \label{fig:architecture}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/ROC_PR_hauksson.pdf}
+    \caption{
+        Caption.
+    }
+    \label{fig:architecture}
+\end{figure}
+
+
+
+
+
+
+
+
+
+% There are two bibliographies in Nature papers. One for the main text, and one for the Methods and Extended Data sections. The numbering is sequential, meaning that the reference section for the Methods and Extended Data section starts after the last number from the main reference section. References should not appear in both sections. Any reference used in Methods or Extended Data that also appears in the main bibliography should *only* appear in the main bibliography.
+\let\oldbibliography\thebibliography
+\renewcommand{\thebibliography}[1]{%
+  \oldbibliography{#1}%
+  \setlength{\itemsep}{10pt}%
+}
+% \bibliography{bibliography}
+% \bibliography{bib-article.bib}
+\newpage
+\bibliography{Magnitude_prediction_paper}
+
+\let\oldthebibliography=\thebibliography
+\let\oldendthebibliography=\endthebibliography
+\renewenvironment{thebibliography}[1]{
+    \oldthebibliography{#1}
+    % The number here (34 is an example) is the number of references in the main bibliography, and thus defines the starting number of the first reference in the Methods and Extended Data bibliography.
+    \setcounter{enumiv}{34}
+}{\oldendthebibliography}
+
+% Figure legends appear after the text, not placed in the text. Do not include the actual image files in the article. Images are submitted as separate files. During the first submission to the journal, you can include the images in the article file for readability, but if you pass the reviews, they will want the images removed from the main article.
+\newpage
+\unnumbered
+
+\unnumbered
+\section{Methods}
+\subsection{AI Model}
+\textbf{Grey's Note} \textit{My understanding is that you can write the methods section just how you would a normal methods section for a normal scientific article.}
+
+
+\section*{Data Availability}
+This is a required section. Guidelines for data availability: \url{https://www.nature.com/documents/nr-data-availability-statements-data-citations.pdf}.
+
+\section*{Code Availability}
+\textbf{Grey's Note} \textit{This is a required section. If your article is about AI or ML, the editor will ask you to make the weights of a trained model available.}
+
+
+\newpage
+\renewcommand\refname{Methods References}
+\begin{thebibliography}{10}
+
+\bibitem{kratzert2019towards}
+Frederik Kratzert, Daniel Klotz, Guy Shalev, G{\"u}nter Klambauer, Sepp
+  Hochreiter, and Grey~S Nearing.
+\newblock Towards learning universal, regional, and local hydrological
+  behaviors via machine learning applied to large-sample datasets.
+\newblock {\em Hydrology and Earth System Sciences}, 23(12):5089--5110, 2019.
+
+\bibitem{klotz2022uncertainty}
+Daniel Klotz, Frederik Kratzert, Martin Gauch, Alden~K Sampson, Johannes
+  Brandstetter, G{\"u}nter Klambauer, Sepp Hochreiter, and Grey~S Nearing.
+\newblock Uncertainty estimation with deep learning for rainfall--runoff
+  modeling.
+\newblock {\em Hydrology and Earth System Sciences}, 26(6):1673--1693, 2022.
+
+\bibitem{twb2023gdp}
+IBRD-IDA.
+\newblock {The World Bank Data: Current US\$}.
+\newblock https://data.worldbank.org/indicator/NY.GDP.MKTP.CD, 2023.
+\newblock Accessed: 2023-06-04.
+
+\end{thebibliography}
+
+
+\newpage
+\section*{Acknowledgements}
+Acknowledgements should be brief, and should not include thanks to anonymous referees and editors, inessential words, or effusive comments. A person can be thanked for assistance, not “excellent” assistance, or for comments, not “insightful” comments, for example. Acknowledgements can contain grant and contribution numbers.
+
+\section*{Author Contributions}
+Author Contributions: Authors are required to include a statement to specify the contributions of each co-author. The statement can be up to several sentences long, describing the tasks of individual authors referred to by their initials. See the authorship policy page for further explanation and examples.
+
+
+\section*{Author Information}
+\textbf{Grey's Note} \textit{Two things are required in this Author Information section: (1) A statement about competing interests. I have no advice about what constitutes a competing interest, you will have to read about it and make your own decision. (2) A clear statement about who to contact with question about the paper. An example is below.}
+
+The authors declare no competing interests. Please contact either the first author (Grey Nearing; \href{mailto:nearing@google.com}{nearing@google.com}) or Avinatan Hassidim; \href{mailto:avinatan@google.com}{avinatan@google.com}) for correspondence and requests, including questions regarding reprints and permissions.
+
+
+\newpage
+\section*{Extended Data}
+\textbf{Grey's Note} \textit{You get up to 10 items in the Extended Data section. All Tables and Figures should be enumerated as "Extended Data Figure 1", "Extended Data Table 1", etc. These must also be referenced the same way in the text. Extended Data tables and figures may be referenced in the main article and/or in the Methods section. I am doing the in-text references to these ED items manually, instead of trying to override the table numbering schemed in Latex. Please update this template to automate that process if you feel like doing that.}
+
+\textit{You can use Latex formatting for tables, but the journal will eventually require that your tables be submitted as images. Yes, this also struck me as unusual.}
+
+\textit{Each ED figure should be on a separate page.}
+
+\textit{Finally, this note is here in the ED section, but in your paper, the ED section should not have any text except figure and table captions/legends.}
+
+\end{document}
