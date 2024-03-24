@@ -65,22 +65,18 @@ This contribution has two important consequences. From a fundamental point of vi
 
 
 
-In order to tackle the question of magnitude predictability, we construct the MAGnitude prediction Neural NETwork model, MAGNNET, a neural network (NN) for producing a probability density function of the possible magnitudes at a queried space time coordinates, conditioned on the seismic history.
-
-MAGNNET encodes the seismic history of time series from a hypocentral catalog and produces an estimate of the possible magnitudes at a queried time and place.
+In order to tackle the question of magnitude predictability, we construct the MAGnitude prediction Neural NETwork model, MAGNNET, a neural network (NN) for producing a probability density function (PDF) of the possible magnitudes at a queried space time coordinates, conditioned on the seismic history. MAGNNET encodes the seismic history of time series from a hypocentral catalog and produces an estimate of the possible magnitudes at a queried time and place.
 
 MAGNNET's result will be quantitatively compared to other known benchmarks to estimate the amount of information gained by encoding the seismic history.
-MAGNNET is composed of a long-short term memory (LSTM) architecture to model the seismic history up to a given time. This latent representation is then passed together with  a space-time coordinate query of a future earthquake into a fully connected neural network (FCNN) that produces a parametrized probability density function (PDF) of the possible magnitudes at the quarried space- time coordinates. This procedure is depicted in Fig. \ref{fig:intro_fig}a. A detailed description of the model's architecture is given in the methods section \neri{TODO}. We optimize MAGNNET's parameters to maximize the log likelihood (LL) of the true magnitude label, by using the loss function $\mathcal{L}$:
+MAGNNET is composed of a long-short term memory (LSTM) architecture to model the seismic history up to a given time. This latent representation is then passed together with  a space-time coordinate query of a future earthquake into a fully connected neural network (FCNN) that produces a parametrized PDF of the possible magnitudes at the quarried space- time coordinates. The task described here, from encoding the seismic history to producing a PDF for a specific time-space querry is depicted in Fig. \ref{fig:intro_fig}a. A detailed description of the model's architecture is given in the methods section \neri{TODO}. We optimize MAGNNET's parameters to maximize the log likelihood (LL) of the true magnitude label, by using the loss function $\mathcal{L}$:
 \begin{equation}
     \mathcal{L} = -\langle \log{ \left( p_{\textbf{x}_i, t_i} \left( m_i \right) \right) } \rangle\ ,
     \label{eq:loss_function}
 \end{equation}
 where $p_{\textbf{x}_i, t_i}$ is the probability function returned by the model for the space-time coordinates $\textbf{x}_i, t_i$ (i.e. the ``query coordinates''), $m_i$ the corresponding to the actual magnitude of the $i^{th}$ earthquake and $\langle \cdot\rangle$ stands for the empirical average over the data set. We use the a mixture of two Kumaraswamy distributions \cite{kumaraswamy_generalized_1980} parameterized family of probability distributions stretched to a relevant domain. The final distribution used is defined by 5 parameters. This family smoothly can interpolate between a decaying distribution (resembling the GR distribution), and localized distributions whose mass is concentrated around a specific value. This allows the model to output both an ``ignorant'' prediction, essentially resembling the GR distribution, and more confident predictions localized around a given magnitude.
 
-We train MAGNNET on three distinct earthquake catalogs to assess the performance across diverse seismogenic regions: the Hauksson Catalog [cite] for Southern California, GeoNet [cite] for New Zealand, and the JMA catalog [cite] for Japan. While all three catalogs encompass highly active seismic zones, they are compiled using various measurement methodologies (e.g.? cite?) and exhibit varying data quality. A separate model is trained for each region, with identical loss function and parameterization of the PDF. 
+We train MAGNNET on three distinct earthquake catalogs to assess the performance across diverse seismogenic regions: the Hauksson Catalog [cite] for Southern California, GeoNet [cite] for New Zealand, and the JMA catalog [cite] for Japan. While all three catalogs encompass highly active seismic zones, they are compiled using various measurement methodologies (e.g.? cite?) and exhibit varying data quality. A separate model is trained for each region, with identical loss function and parameterization of the PDF. Sample results of known events worldwide are presented in \ref{fig:intro_fig}b. The PDF of each event is shown superimposed with the train set's Gutenberg-Richter distribution, i.e. the common vanilla benchmark.
 
-The model's, MAGNNET's, performance is evaluated over a time span that was not included in training. The presented metrics demonstrate that our model consistently and significantly outperforms all benchmarks across all test regions, indicating an information gain in forecasting earthquake magnitudes prior to their occurrence. \neri{I think this is a good place to add that we conclude that there is some preparatory phase.}
-%This finding directly suggests that the seismic system undergoes preparatory processes tailored to the impending event's magnitude before its initiation. Examining these results across multiple catalogs and regions highlights the robustness of our methodology and the generalizability of our conclusion, paving the way for further exploration of earthquake predictability.
 
 \begin{figure}[h!]
 	\centering
@@ -92,13 +88,52 @@ The model's, MAGNNET's, performance is evaluated over a time span that was not i
 \end{figure}
 
 
+The model's, MAGNNET's, performance is evaluated over a time span that was not included in training. The presented metrics demonstrate that our model consistently and significantly outperforms all benchmarks across all test regions, indicating an information gain in forecasting earthquake magnitudes prior to their occurrence. \neri{I think this is a good place to add that we conclude that there is some preparatory phase.}
+%This finding directly suggests that the seismic system undergoes preparatory processes tailored to the impending event's magnitude before its initiation. Examining these results across multiple catalogs and regions highlights the robustness of our methodology and the generalizability of our conclusion, paving the way for further exploration of earthquake predictability.
+
+
 
 \section{Results} \label{sec:results}
 
-Focusing on existing events within the catalog due to our model's requirement for labeled data, our analysis utilizes the space-time coordinates of earthquakes as input. This necessitates excluding queries about arbitrary spatiotemporal points during training and evaluation, as these processes require knowledge of the true magnitude for each event at its specific location and time. Consequently, the raw output for our analysis consists of the model-generated PDFs of possible magnitudes for each event's time and location. Figure \ref{fig:architecture}b showcases PDFs produced by our model, $p_{\textbf{x}_i, t_i}(m)$, for 100 randomly sampled event times and locations from the test set. Included as a baseline is the stationary GR predictor trained on the training set, representing its potential operational use (e.g., Tsuruoka et al., 2012). A clear trend emerges: PDFs predicted for higher-magnitude events (warm colors) exhibit a greater skew towards higher magnitudes compared to those for lower-magnitude events (cooler colors). Figure \ref{fig:output_pdfs}a further highlights this trend by displaying a selection of model-generated PDFs alongside the corresponding likelihood of retrieving the true magnitude at the time and location each PDF was estimated for, denoted by a [color] circle.
+Focusing on existing events within the catalog due to our model's requirement for labeled data, our analysis utilizes the space-time coordinates of earthquakes as input. This necessitates excluding queries about arbitrary spatiotemporal points during training and evaluation, as these processes require knowledge of the true magnitude for each event at its specific location and time. Consequently, the raw output for our analysis consists of the model-generated PDFs of possible magnitudes for each event's time and location. Figure \ref{fig:model_output}a \neri{TODO: make sure numbering in this figure is correct} showcases PDFs produced by our model, $p_{\textbf{x}_i, t_i}(m)$, for 100 randomly sampled event times and locations from the test set of Southern California. Included as a baseline is the stationary GR predictor trained on the training set, representing its potential operational use (e.g., Tsuruoka et al., 2012). A clear trend emerges: PDFs predicted for higher-magnitude events (warm colors) exhibit a greater skew towards higher magnitudes compared to those for lower-magnitude events (cooler colors). Figure \ref{fig:model_output}b Presents the distribution of lieklihood scores of the test set. That is, $p_{\textbf{x}_i, t_i}^{(model)}(magntude label)$, the probability density for retrieving the label magnitude of an event from a given model. The solid line indicates the median, percentiles 10 and 90 are indicated by the shaded region. Here it can be seen that \neri{rerun this figure before writing conclusions}. To qualitativlry compare our model to other benchmark model in more common terms, it is useful to examine the marginal distribution for the magnitudes of the test set. \ref{fig:model_output}c presents the marginal PDF, $p(m)$, of MAGNNET compared to other common benchmarks for the Southern California dataset. This depicts the general trend that the model suggests and makes the comparison to common benchmarks, such as the GR, closer to the method they are typically used in, as a stationary distribution. \ref{fig:model_output}c also shows the histograms of the train and test set superimposed with the marginal PDFs of the models examined. It can clearly be seen that GR follows the train set, as expected, while MAGNNET follows the test set. Furthermore, the dynamic GR benchmarks such as last $n$ events of the $d$ days, although showing a closer functional for to the test than the train, lack features of the histogram that MAGNNET does not. 
 
-Figure \ref{fig:output_pdfs}b focuses solely on the likelihood scores for retrieving the true magnitude, omitting the underlying PDFs used for their estimation. Additionally, it compares these scores against those generated by various benchmark models. Notably, our model demonstrates an advantage for most events exceeding magnitude $\sim 3$, while slightly under performing for lower-magnitude events. However, the overall mean log-likelihood (LL) score defined in \ref{eq:loss_function} (evaluated using the model-specific $p_{\textbf{x}_i, t_i}(\cdot)$ for each event) reveals a consistent advantage for our model across all datasets examined as summarized in \ref{tab:mean_ll}, where our model consistently obtains the lowest minus mean LL score in each column.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/raw_results_hauksson.pdf}
+    \caption{
+        \textbf{outputs of MAGnitude prediction Neural NETwork, MAGNNET, for the Hauksson catalog of Southern California. a}, Likelihoods of MAGNNET and some common benchmark magnitude predictors. Solid lines represent the median value along the magnitude axis, shading shows the 10th and 90th percentiles of the distribution along the vertical axis. \textbf{b}, Train set's Gutenberg-Richter dostribution (dashen black line) with PDFs produced by MAGNNET for 100 randomly sampled events from the test set. Each PDF is color coded by the label of the event, its true magnitude. Colorbar to the right indicates the color code. \textbf{c}, Total magnitude frequency distribution produced by MAGNNET and common benchmarks for the entire test set. Histograms of the train (and test) set are presented in orange (blue).
+    }
+    \label{fig:model_output}
+\end{figure}
+
+
+Quantification of a model's preformance in our scheme will be done by averging on all log-likelihood scores of the test set, as defined in \ref{eq:loss_function}. \ref{fig:metrics}a-c shows the minus mean log likelihood score, $\mathcal{L}$ from \ref{eq:loss_function}, for MAGNNET and chosen common benchmarks, for the three regions tested. It be clearly seen that MAGNNET shows a clear an significant average information gain over every benchmark tested. \neri{Should we mention other benchmarks and refer to the SM?}. 
+
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/combined_batplots.pdf}
+    \caption{
+        \textbf{Metric scores for out model MAGNNET, and common benchmark models. a}, \textbf{b}, \textbf{c}, Minus mean information content of our MAGNNET model (red) and other common benchmark magnitude predictors (see labels on bars in the figure). \textbf{d, e, f}, Reciever Operating Characteristic (ROC) curve for a binary classifier determinng the existence of a large ($m>=4$) event. Area under the curve (AUC) for each curve is written in each frame, colorcoded identically to the bar plots. \textbf{g, h, i}, Precision at recall curves for the binary classifier described in d, e, f. 
+        }
+        \label{fig:metrics}
+\end{figure}
+
+As the out model's output is a probability density function (PDF), we may easily convert it to a binary classifer. By doing this we are posing a modified question: will there be a large earthquake in the query space-time coordiantes or not? This is easily done by setting a threshold which defines a "large" earthquake, $m_c$ ($=4$ in the examples presented here), then setting examples above that threshold as positive examples and below as negative. The probability of a large event occuring in the query coordinates is given by integrating the output PDF above the threshild, $p=\int_{m_c}^{\infty}p(m')dm'$. Given such binary classifier, it is possible now to examine the common binary classifier metrics of area under reciever operator (ROC) curve [cite] and the prescision at recall curve [cite]. \ref{fig:metrics}d-f show the ROC curves for the binary modification for all three regions in question. The area under the curve (AUC) are written to the bottom right of each panel color coded by the same legend as the bar plots above. It can be seen that throughout all regions MAGNNET preforms significantly better than all other benchmarks, indicated by the largest AUC value. The precision at recall curve displayed in \ref{fig:metrics}g-i show a similar result as MAGNNET's curve displays the largest AUC among all benchmarks tested throughout all regions.
+
+   
+    
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/info_over_time_hauksson.pdf}
+    \caption{
+        Caption.
+    }
+    \label{fig:info_gain_over_time}
+\end{figure}
+    
 
 
 The information gain achieved by our model for each event can be quantified by the difference in log-likelihood (LL) between our model's prediction and the baseline GR predictor:
@@ -106,7 +141,7 @@ The information gain achieved by our model for each event can be quantified by t
     \Delta LL = \log{p_{\pmb{x_i}, t_i}^{(model)}(m_i)} - \log{p^{(GR)}(m_i)}
     \label{eq:information_gain}
 \end{equation}
-This equation measures the number of bits of information gained by using our model compared to the GR benchmark. Analyzing this quantity per event across the entire test set reveals patterns in where our model achieves its advantage. \ref{fig:likelihood_over_time}a shows the Hauksson data test set event magnitudes at their occurrence times, colored according to the information gain. This time-domain representation allows us to track the cumulative information gain, calculated over the entire test set and displayed as a gray dashed line in the figure. The predominantly increasing trend in cumulative information gain suggests that our model is consistently advantageous as opposed to a concentrated advantage in specific periods. Notably, for the Hauksson data set, the most rapid information gain occurs during the aftershocks of the two Ridgecrest earthquakes. Surprisingly, even the pre-shock and main shock events demonstrate positive information gains over the GR benchmark, with values of $0.5$ and $1.4$ bits, respectively, though these events are typically considered completely unpredictable. This observation leads to a significant corollary: at least some portion of the information gain likely originates from a physical precursory signal. This point will be further elaborated upon in the discussion section.
+This equation measures the number of bits of information gained by using our model compared to the GR benchmark. Analyzing this quantity per event across the entire test set reveals patterns in where our model achieves its advantage. \ref{fig:info_gain_over_time}a shows the test set for Southern California event magnitudes by their running index, colored according to the information gain of our model compared to the GR benchmark. This time-domain representation allows us to track the cumulative information gain, calculated over the entire test set and displayed as a black dashed line in the figure. The predominantly increasing trend in cumulative information gain suggests that our model is consistently advantageous as opposed to a concentrated advantage in specific periods. Notably, for the Southern California data set, the most rapid information gain occurs during the aftershocks of the two Ridgecrest earthquakes. Surprisingly, even the pre-shock and main shock events demonstrate positive information gains over the GR benchmark, with values of $0.5$ and $1.4$ bits, respectively, though these events are typically considered completely unpredictable. This observation leads to a significant corollary: at least some portion of the information gain likely originates from a physical precursory signal. This point will be further elaborated upon in the discussion section.
 \newline
 The observed increase in information gain persists throughout the entire test set for all regions examined in this study. This includes regions previously analyzed by (Ogata et al. SRL 2018), where no information gain was detected using the method employed at the time. Further analysis of \ref{fig:likelihood_over_time} applied to other regions is presented in the supplementary material.
 \newline
@@ -126,35 +161,10 @@ Crucially, \ref{fig:likelihood_over_time}b also presents the magnitudes of the R
 
 
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=1\textwidth]{figures/raw_results_hauksson.pdf}
-    \caption{
-        \textbf{outputs of MAGnitude prediction Neural NETwork, MAGNNET, for the Hauksson catalog of Southern California. a}, Likelihoods of MAGNNET and some common benchmark magnitude predictors. Solid lines represent the median value along the magnitude axis, shading shows the 10th and 90th percentiles of the distribution along the vertical axis. \textbf{b}, Train set's Gutenberg-Richter dostribution (dashen black line) with PDFs produced by MAGNNET for 100 randomly sampled events from the test set. Each PDF is color coded by the label of the event, its true magnitude. Colorbar to the right indicates the color code. \textbf{c}, Total magnitude frequency distribution produced by MAGNNET and common benchmarks for the entire test set. Histograms of the train (and test) set are presented in orange (blue).
-    }
-    \label{fig:architecture}
-\end{figure}
-
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=1\textwidth]{figures/combined_batplots.pdf}
-    \caption{
-        \textbf{Metric scores for out model MAGNNET, and common benchmark models. a}, \textbf{b}, \textbf{c}, Minus mean information content of our MAGNNET model (red) and other common benchmark magnitude predictors (see labels on bars in the figure). \textbf{d, e, f}, Reciever Operating Characteristic (ROC) curve for a binary classifier determinng the existence of a large ($m>=4$) event. Area under the curve (AUC) for each curve is written in each frame, colorcoded identically to the bar plots. \textbf{g, h, i}, Precision at recall curves for the binary classifier described in d, e, f. 
-    }
-    \label{fig:architecture}
-\end{figure}
 
 
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=1\textwidth]{figures/info_over_time_hauksson.pdf}
-    \caption{
-        Caption.
-    }
-    \label{fig:architecture}
-\end{figure}
+
 
 
 
