@@ -121,7 +121,8 @@ Quantification of a model's performance in our scheme will be done by averaging 
     \centering
     \includegraphics[width=1\textwidth]{figures/combined_batplots.pdf}
     \caption{
-        \textbf{Metric scores for the MAGNET model, and common benchmark models. a}, \textbf{b}, \textbf{c}, Minus mean information content of our MAGNET model (red) and other common benchmark magnitude predictors (see labels on bars in the figure). A lower score indicated a better preforming model. \textbf{d, e, f}, Reciever Operating Characteristic (ROC) and \textbf{g, h, i} the interpolated precision-recall (PR) curve for a binary classifier determining the existence of a large ($m>=4$) event. The preformance of such a classifier can be quantified by the area under the curve (AUC), noted in each frame, colorcoded identically to the bar plots. For the AUC metrics, a higher score indicated a better preforming classifier.
+        \textbf{Metric scores for the MAGNET model, and common benchmark models. a}, \textbf{b}, \textbf{c}, Minus mean information content of our MAGNET model (red) and other common benchmark magnitude predictors (see labels on bars in the figure). A lower score indicated a better preforming model. \textbf{d, e, f}, Receiver Operating Characteristic (ROC) and \textbf{g, h, i} the interpolated precision-recall (PR) curve for a binary classifier determining the existence of a large ($m>=4$) event. The performance of such a classifier can be quantified by the area under the curve (AUC), noted in each frame, color coded identically to the bar plots. For the AUC metrics, a higher score indicated a better preforming classifier.
+        \neri{Organize titles and font sizes}
         }
         \label{fig:metrics}
 \end{figure}
@@ -219,17 +220,15 @@ Here $a_j, \ b_j$ are the parameters of the Kumaraswamy distribution. $m_c$ is t
 \subparagraph{Spatially varying Gutenberg Richter} Estimation of the local $\beta$ value is done by following the method of \cite{taroni_highdefinition_2021}. Seismicity data is first binned into $0.1^\circ \times 0.1^\circ$, where the GR distribution is calculated for. beta for a specified location $x_i$ calculated by smoothing the binned values over a radius of 30km around $x_i$. Estimation which consider less than 100 events are discarded.
 
 \subsection{Measurement of temporal incompleteness}
-Temporal incompleteness is measured at the times of events by fitting the completeness magnitude to a window of 300 events: 150 past events, 1 current event, 149 future events. The window is constructed by the same algorithm, described to construct the \textit{ Last $n$ events benchmark}.
+Temporal incompleteness is measured at the times of events by fitting the completeness magnitude to a window of 300 events: 150 past events, 1 current event, 149 future events. The window is constructed by the same algorithm, used to construct the \textit{Last $n$ events benchmark}.
 
 
 
 
-\section*{Data Availability}
-This is a required section. Guidelines for data availability: \url{https://www.nature.com/documents/nr-data-availability-statements-data-citations.pdf}.
-
-\section*{Code Availability}
-\textbf{Grey's Note} \textit{This is a required section. If your article is about AI or ML, the editor will ask you to make the weights of a trained model available.}
-
+\section*{Data and code availability}
+The datasets analysed during the current study are available in the relevant references mentioned throught the article.
+The code for analysing the data is available in \textcolor{red}{\textbf{**link TBD**}}
+% This is a required section. Guidelines for data availability: \url{https://www.nature.com/documents/nr-data-availability-statements-data-citations.pdf}.
 
 \newpage
 \renewcommand\refname{Methods References}
@@ -249,13 +248,15 @@ Taroni, M., Zhuang, J. \& Marzocchi, W. High‐Definition Mapping of the Gutenbe
 
 \newpage
 \section*{Acknowledgements}
+\yohai{Legit to use your comment to give you tasks? TODO by \textbf{Yohai}}
 Acknowledgements should be brief, and should not include thanks to anonymous referees and editors, inessential words, or effusive comments. A person can be thanked for assistance, not “excellent” assistance, or for comments, not “insightful” comments, for example. Acknowledgements can contain grant and contribution numbers.
 
 \section*{Author Contributions}
-Author Contributions: Authors are required to include a statement to specify the contributions of each co-author. The statement can be up to several sentences long, describing the tasks of individual authors referred to by their initials. See the authorship policy page for further explanation and examples.
-
+N.B., O.Z., O.G., Y.B.S.
+N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiments. N.B., O.G. and Y.B.S. preformed the statistical analysis. N.B. and O.Z. wrote the code base. N.B. and Y.B.S. wrote the manuscript. All authors reviewed the manuscript.
 
 \section*{Author Information}
+\yohai{Legit to use your comment to give you tasks? TODO by \textbf{Yohai} x2}
 \textbf{Grey's Note} \textit{Two things are required in this Author Information section: (1) A statement about competing interests. I have no advice about what constitutes a competing interest, you will have to read about it and make your own decision. (2) A clear statement about who to contact with question about the paper. An example is below.}
 % For example:
 % The authors declare no competing interests. Please contact either the first author (Grey Nearing; \href{mailto:nearing@google.com}{nearing@google.com}) or Avinatan Hassidim; \href{mailto:avinatan@google.com}{avinatan@google.com}) for correspondence and requests, including questions regarding reprints and permissions.
@@ -264,21 +265,29 @@ Author Contributions: Authors are required to include a statement to specify the
 \newpage
 \section*{Extended Data}
 \begin{enumerate}
-    \item Table: scores of all metrics - \textbf{should I add this??}
-    \item Detailed architecture? - \textbf{should I add this??}
+    \item Table: scores of all metrics - \textcolor{red}{\textbf{should I add this??}}
+    \item Detailed architecture? - \textcolor{red}{\textbf{Make a nice version}}
     \item Colorful PDF examples for NZ and Japan
     \item Marginal distributions for NZ and Japan
-    \item Colored scatter magnitude vs index, NZ and Japan - \textcolor{red}{\textbf{Done}}
-    \item $m_c(t)$ for all three regions -  - \textcolor{green}{kind of finished plot, not sure}
+    \item Colored scatter magnitude vs index, NZ and Japan - \textcolor{blue}{\textbf{Done}}
+    \item $m_c(t)$ for all three regions -  - \textcolor{blue}{Done}
     \item Bar plots of conditioned $<LL>$
     \item Spatial $m_c(x, y)$ and low $m_c(x, y) \leq m_c^{train}$ bins
 \end{enumerate}
 
+\textbf{Grey's Note} \textit{You get up to 10 items in the Extended Data section. All Tables and Figures should be enumerated as "Extended Data Figure 1", "Extended Data Table 1", etc. These must also be referenced the same way in the text. Extended Data tables and figures may be referenced in the main article and/or in the Methods section. I am doing the in-text references to these ED items manually, instead of trying to override the table numbering schemed in Latex. Please update this template to automate that process if you feel like doing that.}
+
+\textit{You can use Latex formatting for tables, but the journal will eventually require that your tables be submitted as images. Yes, this also struck me as unusual.}
+
+\textit{Each ED figure should be on a separate page.}
+
+\textit{Finally, this note is here in the ED section, but in your paper, the ED section should not have any text except figure and table captions/legends.}
+
 \newpage
-\begin{figure}
+\begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{figures/detailed_architecture.pdf}
-    \caption{\textbf{MAGNET architecture.} Described in detail in the methods section.}
+    \caption{\neri{TODO: this needs to be nicer} \textbf{MAGNET architecture.} Described in detail in the methods section.}
     \label{fig:architecture}
 \end{figure}
 
@@ -289,19 +298,18 @@ Author Contributions: Authors are required to include a statement to specify the
 	\caption{
             \textbf{Information gain over time domain for New Zealand and Japan data sets.} This figure presents results for the data sets not displayed in Fig. \ref{fig:info_gain_over_time}a. \textbf{a} Entire test set of New Zealand and a selected time span (\textbf{b}) focusing on the 2016 Te Araroa earthquake and the 2016 Kaikōura earthquake. \textbf{c} The entire Japan data set and a focused time span \textbf{d} of the 2011 Tōhoku earthquake and some of its aftershocks.
          }
-\label{fig:intro_fig}
+\label{fig:nz_japan_info_gain}
 \end{figure}
 
 \newpage
+\begin{figure}[h!]
+    \centering
+        \includegraphics[width=1\textwidth]{figures/temporal_incompleteness.pdf}
+    \caption{
+    \textbf{Temporal Incompleteness for test sets of all regions examined.} Calculated temporal incompleteness for test sets is presented in red, superimposed over the events above (black) and below (grey) the completeness magnitude of the train set, $m_c^{(train)}$. Events are plotted by the index of their appearance in the test set. Events of low magnitude, $m_c^{(train)}$ (grey), that are not included in the evaluation, are plotted at their interpolated location along the horizontal axis. Data for Japan (c) is displayed only near the 2011 Tōhoku earthquake to reduce data density and enhance clarity of the figure.
+    }
+    \label{fig:temp_incompleteness}
+\end{figure}
 
-
-
-\textbf{Grey's Note} \textit{You get up to 10 items in the Extended Data section. All Tables and Figures should be enumerated as "Extended Data Figure 1", "Extended Data Table 1", etc. These must also be referenced the same way in the text. Extended Data tables and figures may be referenced in the main article and/or in the Methods section. I am doing the in-text references to these ED items manually, instead of trying to override the table numbering schemed in Latex. Please update this template to automate that process if you feel like doing that.}
-
-\textit{You can use Latex formatting for tables, but the journal will eventually require that your tables be submitted as images. Yes, this also struck me as unusual.}
-
-\textit{Each ED figure should be on a separate page.}
-
-\textit{Finally, this note is here in the ED section, but in your paper, the ED section should not have any text except figure and table captions/legends.}
 
 \end{document}
