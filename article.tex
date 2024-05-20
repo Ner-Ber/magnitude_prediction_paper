@@ -216,8 +216,10 @@ Here $a_j, \ b_j$ are the parameters of the Kumaraswamy distribution. $m_c$ is t
 \subparagraph{Last $d$ days} The Gutenberg- Richter (GR) distribution fitted for the events in the past $d$ days. This method is identical to the previous method in all but the definition of the window selection.
 
 
-\subparagraph{Spatially varying Gutenberg Richter}
+\subparagraph{Spatially varying Gutenberg Richter} Estimation of the local $\beta$ value is done by following the method of \cite{taroni_highdefinition_2021}. Seismicity data is first binned into $0.1^\circ \times 0.1^\circ$, where the GR distribution is calculated for. beta for a specified location $x_i$ calculated by smoothing the binned values over a radius of 30km around $x_i$. Estimation which consider less than 100 events are discarded.
+
 \subsection{Measurement of temporal incompleteness}
+Temporal incompleteness is measured at the times of events by fitting the completeness magnitude to a window of 300 events: 150 past events, 1 current event, 149 future events. The window is constructed by the same algorithm, described to construct the \textit{ Last $n$ events benchmark}.
 
 
 
@@ -234,6 +236,14 @@ This is a required section. Guidelines for data availability: \url{https://www.n
 \begin{thebibliography}{10}
 \bibitem{zlydenko_neural_2023}
 Zlydenko, O. et al. A neural encoder for earthquake rate forecasting. Sci Rep 13, 12350 (2023).
+\bibitem{taroni_highdefinition_2021}
+Taroni, M., Zhuang, J. \& Marzocchi, W. High‐Definition Mapping of the Gutenberg–Richter b‐Value and Its Relevance: A Case Study in Italy. Seismological Research Letters 92, 3778–3784 (2021).
+  
+
+
+
+
+
 \end{thebibliography}
 
 
