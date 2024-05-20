@@ -1,0 +1,78 @@
+\documentclass[pdflatex]{sn-jnl}
+\jyear{2024}
+\usepackage{multibib}
+\newcites{m}{Methods References}
+\usepackage[superscript]{cite}
+\usepackage{caption}
+\bibliographystyle{unsrt}
+\bibliographystylem{unsrt} 
+\raggedbottom
+
+% Remove numbering from sections and subsections, as requested in decision email.
+\setcounter{secnumdepth}{0}
+
+
+\newcommand{\yohai}[1]{{\textcolor{red}{#1}}}
+\newcommand{\neri}[1]{{\textcolor{cyan}{#1}}}
+
+
+\begin{document}
+
+\title[Running Title]{Supplamentary information for: Does an earthquake “know” how big it will be? A neural-net aided study} % 2nd option: Using past seismicity to predict the magnitude of future earthquakes
+
+\keywords{}
+
+\maketitle
+
+\neri{comment by Neri} \newline
+\yohai{comment by Yohai}
+
+% Figure legends appear after the text, not placed in the text. Do not include the actual image files in the article. Images are submitted as separate files. During the first submission to the journal, you can include the images in the article file for readability, but if you pass the reviews, they will want the images removed from the main article.
+\section{Methods}
+\subsection{AI Model}
+\textbf{Grey's Note} \textit{My understanding is that you can write the methods section just how you would a normal methods section for a normal scientific article.}
+
+\section{Supplementary information}
+\subsection{Possible information gain from beta spatial variability}
+Various common benchmarks are presented in the main text for comparison to our model's, MAGNET's, performance. Variation is beta in treated only in the time domain for two reasons. Firstly, time dependent beta is more commonly used than 
+
+
+\section*{Data Availability}
+This is a required section. Guidelines for data availability: \url{https://www.nature.com/documents/nr-data-availability-statements-data-citations.pdf}.
+
+\section*{Code Availability}
+\textbf{Grey's Note} \textit{This is a required section. If your article is about AI or ML, the editor will ask you to make the weights of a trained model available.}
+
+
+\renewcommand\refname{SI References}
+\begin{thebibliography}{10}
+
+\end{thebibliography}\newpage
+\bibliography{Magnitude_prediction_paper_SI}
+
+
+\newpage
+\section*{Acknowledgements}
+Acknowledgements should be brief, and should not include thanks to anonymous referees and editors, inessential words, or effusive comments. A person can be thanked for assistance, not “excellent” assistance, or for comments, not “insightful” comments, for example. Acknowledgements can contain grant and contribution numbers.
+
+\section*{Author Contributions}
+Author Contributions: Authors are required to include a statement to specify the contributions of each co-author. The statement can be up to several sentences long, describing the tasks of individual authors referred to by their initials. See the authorship policy page for further explanation and examples.
+
+
+\section*{Author Information}
+\textbf{Grey's Note} \textit{Two things are required in this Author Information section: (1) A statement about competing interests. I have no advice about what constitutes a competing interest, you will have to read about it and make your own decision. (2) A clear statement about who to contact with question about the paper. An example is below.}
+
+The authors declare no competing interests. Please contact either the first author (Grey Nearing; \href{mailto:nearing@google.com}{nearing@google.com}) or Avinatan Hassidim; \href{mailto:avinatan@google.com}{avinatan@google.com}) for correspondence and requests, including questions regarding reprints and permissions.
+
+
+\newpage
+\section*{Extended Data}
+\textbf{Grey's Note} \textit{You get up to 10 items in the Extended Data section. All Tables and Figures should be enumerated as "Extended Data Figure 1", "Extended Data Table 1", etc. These must also be referenced the same way in the text. Extended Data tables and figures may be referenced in the main article and/or in the Methods section. I am doing the in-text references to these ED items manually, instead of trying to override the table numbering schemed in Latex. Please update this template to automate that process if you feel like doing that.}
+
+\textit{You can use Latex formatting for tables, but the journal will eventually require that your tables be submitted as images. Yes, this also struck me as unusual.}
+
+\textit{Each ED figure should be on a separate page.}
+
+\textit{Finally, this note is here in the ED section, but in your paper, the ED section should not have any text except figure and table captions/legends.}
+
+\end{document}
