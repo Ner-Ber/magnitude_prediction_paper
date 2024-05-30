@@ -45,21 +45,21 @@ Earthquake occurrence is notoriously difficult to predict. Salient features of t
 Earthquakes are notoriously unpredictable, and forecasting seismicity is a long-standing scientific and technological challenge, often deemed unrealistic due to the inherent complexity of earthquake processes and the scarcity of near-field data~\cite{bernard_earthquake_1999, geller_earthquakes_1997}. 
 Research since the late 19th century has provided much phenomenological insight about the spatiotemporal statistics of earthquakes, including various marginal distributions \cite{gutenberg_frequency_1944, kagan_seismic_2002}, scaling relations \cite{bak_earthquakes_1989, dascher-cousineau_what_2020, kagan_aftershock_2002, utsu_centenary_1995} and characteristics of both spatial and temporal clustering \cite{omori_after-shocks_1894, kagan_short-term_2004, ben-zion_localization_2020, devries_deep_2018, king_static_1994}. Clearly, these insights can be used to quantitatively inform us about future seismicity based on recent history. For example, Omori's law tells us that after big earthquakes we should expect an increase in the local seismicity rate~\cite{omori_after-shocks_1894}. Such laws have been incorporated into a variety of forecasting models, which are operationally used today\cite{ogata_statistical_1988, hardebeck_aftershock_2024, jordan_operational_2011, stirling_national_2012}.
 
-However, the above mentioned statistical relations only describe the rate and locations of earthquakes, and very little is known about the dependence of earthquake magnitude on seismic history.
+However, these statistical relations only describe the rate and locations of earthquakes, and very little is known about the dependence of earthquake magnitude on seismic history.
 It is deeply debated whether it is possible to determine the magnitude of an earthquake before it starts~\cite{kagan_seismic_2002, ogata_exploring_2018}, or even during rupture~\cite{ellsworth_seismic_1995, meier_evidence_2016}.
-Most modeling approaches assume that event magnitudes follow and identical and independent stationary (or almost stationary) distribution - the Gutenberg Richter distribution (GR), which describes the marginal magnitude distribution over large regions and long times. 
-While some variations in magnitude statistics have been described \cite{gulia_real-time_2019, nandan_magnitude_2019}, they all model history dependence by weak and slow changes in the parameters of the GR distribution, and do not model the magnitude of \textit{a specific} future event. Operationally, state-of-the-art forecasting models typically assume no knowledge about the magnitude of future events besides the marginal GR distribution, an assumption known as separability \cite{schoenberg_testing_2004}. Namely, the separability assumption is that the distribution of earthquake magnitudes is statistically independent of the distribution of earthquakes locations and times.
+Most modeling approaches assume that event magnitudes follow an identical and independent stationary (or almost stationary) distribution - the Gutenberg Richter distribution (GR), which describes the marginal magnitude distribution over large regions and long times. 
+While some variations in magnitude statistics have been described \cite{gulia_real-time_2019, nandan_magnitude_2019}, they all model history dependence by weak and slow changes in the parameters of the GR distribution, and do not model the magnitude of \textit{a specific} future event. Operationally, state-of-the-art forecasting models typically assume no knowledge about the magnitude of future events besides the marginal GR distribution, an assumption known as separability \cite{schoenberg_testing_2004}. Namely, the separability assumption is that the distribution of earthquake magnitudes is statistically independent of their locations and times.
 
 This modeling approach is not a naive or uninformed choice.  Current research on magnitude prediction has failed to show a universal and reproducible advantage over a stationary or quasi-stationary GR benchmark~\cite{ogata_exploring_2018, stockman_forecasting_2023}. Indeed, due to the spatial complexity of the elastic fields, faulting patterns and lithology, the nonlinearities of the rupture process and the complicated interaction between them all, it is not far-fetched to assume that determining the magnitude of an event requires a detailed microscopic knowledge of the system's state. 
 This philosophy also inspired physical models which describe earthquake dynamics with a statistical approach \cite{olami_self-organized_1992, sornette_self-organized_1989, bak_earthquakes_1989, de_geus_scaling_2022}. These models reproduce many of the phenomenological statistical relations by positing that faults evolve (``self-organize'') towards a critical state, where events emerge stochastically and their magnitude follows a power-law distribution which is scale-free and self-similar, akin to physical systems in the vicinity of a phase transition. Under this paradigm, determining the magnitude of an event is indeed impossible using only far-field measurements. 
 
-Previous studies have not identified a definitive link between earthquake magnitude and seismic history \cite{petrillo_verifying_2023}\neri{More citations needed}. Research focused on predicting future earthquake magnitudes often explores questions distinct from those addressed here. While some have yielded interesting results, the absence of comparisons to established benchmarks \cite{shcherbakov_forecasting_2019, panakkat_neural_2007} hinders objective assessment of their efficacy and progress. Other studies specifically targeting magnitude prediction have yet to outperform the GR distribution \cite{stockman_forecasting_2023}. Thus, previous studies have not yet systematically shown the ability to extract meaningful information from seismic history beyond what a random selection from the GR distribution would provide. Consequently, the question regarding the dependence of magnitude on seismic history remains open.
+Multiple previous studies have not identified a definitive link between earthquake magnitude and seismic history \cite{petrillo_verifying_2023, taroni_are_2024, davidsen_are_2011}. Some studies have shown circumstantial evidence that earthquake magnitudes may not follow a strictly stationary distribution, e.g.~by showing that statistics are not invariant to permutation of the order, or by showing that the maximal magnitude in a given time frame can be predicted with a better-than-random chance~\cite{xiong_seismic_2023, corral_comment_2005, spassiani_exploring_2016, lippiello_positive_2024, lippiello_positive_2024-1, lippiello_influence_2008, shcherbakov_forecasting_2019, panakkat_neural_2007}. However, a significant information gain over the GR benchmark in predicting the magnitude of a given earthquake was not demonstrated, and to the best of our knowledge was not attempted. The debate regarding the dependence of magnitude on seismic history remains open.
 
-The main goal of this paper is to ask the question directly: can we extract any information about a future earthquake's magnitude from regional seismic history? A positive answer would yield two important consequences. From a fundamental point of view, it challenges the common belief that earthquake magnitudes are independent of seismic history and are inherently unpredictable. Second, it suggests that the separability assumption, which is widely applied in operational earthquake forecasting, may be replaced by a more nuanced model that incorporates the seismic history into the magnitude prediction. This may lead to improved forecasting models, and potentially also be used to identify precursory signals in the seismic history of an earthquake.
+The main goal of this paper is to ask the question directly: can we extract any information about the magnitude of a specific future earthquake from regional seismic history? A positive answer would have two important consequences. From a fundamental point of view, it challenges the common belief that earthquake magnitudes are inherently unpredictable. Second, it suggests that the separability assumption, which is widely applied in operational earthquake forecasting, may be replaced by a more nuanced model that incorporates the seismic history into the magnitude prediction. This may lead to improved forecasting models, and potentially also be used to identify precursory signals in the seismic history of an earthquake.
 
 % \neri{Stress more: this will imply we have information relevant to prediction tasks. Zhuang stated: "you have touched one of the most important problems on earthquake predictability"} 
 
-To this end, we construct a neural-based model that predicts the magnitude of a given earthquake given the short and long term seismic history prior to its occurrence. Our model is trained on seismic catalogs containing information about past earthquakes, including location, time, and magnitude. In some experiments, we explore the impact of incorporating focal mechanism data as well, demonstrating improved performance. Importantly, the model is not tasked with predicting the timing and location of the event, as they are explicitly provided. Thus, we separate out the task of modeling nucleation statistics and isolate the question of magnitude predictability. If our model performs better than a random draw from a GR distribution or its variants, as we will indeed demonstrate is the case, we assert that at least some information about the magnitude of a specific earthquake is extractable from cataloged properties alone. 
+To this end, we construct a neural-based model that predicts the magnitude of a given earthquake given the short and long term seismic history prior to its occurrence. Our model is trained on seismic catalogs containing information about past earthquakes, including location, time, and magnitude. In some experiments, we also incorporate focal mechanism information, demonstrating improved performance. Importantly, the model is not tasked with predicting the timing and location of the event, as they are explicitly provided. Thus, we separate out the task of modeling nucleation statistics and isolate the question of magnitude predictability. If our model performs better than a random draw from a GR distribution or its variants, as we will indeed demonstrate is the case, we assert that at least some information about the magnitude of a specific earthquake is extractable from cataloged properties alone. 
 
 
 
@@ -69,17 +69,15 @@ To this end, we construct a neural-based model that predicts the magnitude of a 
 \section{Methodology}
 We construct the MAGnitude Neural EsTimation model, MAGNET, a generative neural network (NN) that receives as input a hypocentral catalog of past regional seismicity, and the time and location of a future event (a ``query''). The network produces a probability density function (PDF) estimating its magnitude. 
 
-MAGNET is composed of two main components. First, the catalog up to, and not including, time $t$ is encoded by a long-short term memory (LSTM) unit, which produces a latent representation of the seismic history.
-Second, this representation is combined with a space-time query specifying the coordinates of a future earthquake and passed into a fully connected neural network (FCNN) that produces a parametrized PDF of the event's magnitude, see Fig. \ref{fig:intro_fig}a. A detailed description of the model's architecture is given in the methods section \neri{TODO}. We optimize MAGNET's parameters to maximize the log likelihood (LL) of the observed magnitudes,
-\begin{equation}
-    \mathcal{L} = -\langle \log{ \left( p_{\textbf{x}_i, t_i} \left( m_i \right) \right) } \rangle\ ,
-    \label{eq:loss_function}
-\end{equation}
-where $\bf{x}_i$, $t_i$, $m_i$ are the location, time and magnitude of the $i$-th event, $p_{\textbf{x}_i, t_i}(\cdot)$ is the probability function returned by the model. $\langle \cdot\rangle$ stands for the empirical average over all earthquakes in the data set. Importantly, during training we only supply the model with queries about spacetime coordinates where earthquakes indeed occurred, and only events above the completeness magnitude of the catalog are used as queries.
+MAGNET is composed of two main components. First, the catalog up to time $t$ (not including) is encoded by a long-short term memory (LSTM) unit, which produces a latent representation of the seismic history \yohai{cite LSTM paper}.
+Second, this representation is combined with a space-time query specifying the coordinates, $\bf{x}_i$, $t_i$, of a future earthquake and passed into a fully connected neural network (FCNN) that produces a parametrized PDF of the event's magnitude, $p_{\textbf{x}_i, t_i}(m)$, see Fig. \ref{fig:intro_fig}a. 
 
 Technically, the distribution is modeled as a mixture of two stretched Kumaraswamy distributions \cite{kumaraswamy_generalized_1980} and is parameterized by 5 parameters, which are the output of the network. This parameteric family can  smoothly interpolate between a power-law decaying distribution (resembling the GR distribution), and localized distributions with concentrated mass around a specific value. This allows the model to output both an ``ignorant'' prediction, essentially resembling the GR distribution, and more confident predictions localized around a given magnitude.
 
-We deployed MAGNET on three distinct earthquake catalogs to assess the performance across diverse seismogenic regions: the Hauksson Catalog \cite{hauksson_waveform_2012} for Southern California, GeoNet \cite{gns_geonet_1970} for New Zealand, and the JMA catalog \cite{noauthor_japan_nodate-1} for Japan. While all three catalogs encompass highly active seismic zones, they are compiled using various measurement methodologies \neri{Not sure if I need to backthis statement up} and exhibit varying data quality. \neri{this one as well} A separate model is trained for each region, with identical loss function and parameterization of the PDF. The resulting PDF is presented in Fig. \ref{fig:intro_fig}b for a few examples of major events, superimposed on the stationary GR distribution (fitted on the train set), which is the naive benchmark.
+The model parameters are optimized to maximize the log likelihood (LL) of the observed magnitudes. Importantly, during training we only supply the model with queries about spacetime coordinates where earthquakes indeed occurred, and only events above the completeness magnitude of the catalog are used as queries. A detailed description of the model's architecture is given in the methods section \neri{TODO}.
+
+
+We deployed MAGNET on three distinct earthquake catalogs to assess the performance across diverse seismogenic regions: the Hauksson Catalog \cite{hauksson_waveform_2012} for Southern California, GeoNet \cite{gns_geonet_1970} for New Zealand, and the JMA catalog \cite{noauthor_japan_nodate-1} for Japan. While all three catalogs encompass highly active seismic zones, they are compiled using various measurement methodologies and exhibit varying data quality. A separate model is trained for each region, with identical loss function and parameterization of the PDF. The resulting PDF is presented in Fig. \ref{fig:intro_fig}b for a few examples of major events, superimposed on the stationary GR distribution (fitted on the train set), which is the naive benchmark.
 
 \begin{figure}[h!]
 	\centering
@@ -95,45 +93,45 @@ All metrics reported in this work were evaluated over a time span that is not in
 
 
 \section{Results} \label{sec:results}
+As explained above, the model outputs a PDF $p_{\textbf{x}_i, t_i}$ for each earthquake in the training set. We denote $\ell_i=\log\left(p_{\textbf{x}_i, t_i}(m_i)\right)$, the log-likelihood of the true magnitude $m_i$ as predicted by MAGNET.
+The model is trained to maximize the average log-likelihood of the true magnitudes in the training set, $\mathcal{L} = -\langle \log{ \ell_i } \rangle$, where $\langle \cdot\rangle$ stands for the empirical average over all earthquakes in the data set. 
 
 % Focusing on existing events within the catalog due to our model's requirement for labeled data, our analysis utilizes the space-time coordinates of earthquakes as input. This necessitates excluding queries about arbitrary spatiotemporal points during training and evaluation, as these processes require knowledge of the true magnitude for each event at its specific location and time. Consequently, the raw output for our analysis consists of the model-generated PDFs of possible magnitudes for each event's time and location. 
 
-Our model, MAGNET, demonstrates the ability to capture the dependence of magnitude distribution on seismic history. Figure \ref{fig:model_output}a showcases the predicted probability density functions (PDFs) $p_{\textbf{x}_i, t_i}(m)$ for 100 randomly sampled events from the Southern California test set. The PDFs exhibit a clear trend: those for higher-magnitude events (warmer colors) are skewed towards larger magnitudes compared to lower-magnitude events (cooler colors). For comparison, the stationary GR distribution, the naive predictor, is presented along the model's results. This result aligns with the expected behavior for earthquake magnitude predictor: dynamically distributing the probability mass for the expected magnitudes. 
-Figure \ref{fig:model_output}b depicts the distribution of likelihood scores for the test set across our model (MAGNET), the stationary Gutenberg-Richter (GR) distribution, and a moving window GR approach \cite{gulia_real-time_2019}. Notably, for many high-magnitude events, the model's likelihood scores (red scatter) surpass those of the benchmarks.
+Figure \ref{fig:model_output}a shows the predicted PDFs for 100 randomly sampled events from the Southern California test set. The PDFs exhibit a clear trend: those that were calculated for higher-magnitude events are skewed towards larger magnitudes (warmer colors) compared to lower-magnitude events (cooler colors). This aligns with the expected behavior for an earthquake magnitude predictor. For comparison, the stationary GR distribution, the naive predictor which is independent of (recent) seismic history, is presented along the model's results.
+
+This is a qualitative demonstration that the model works as expected. For a quantitative comparison, we calculate the $\mathcal{L}=-\langle \ell_i \rangle$ over all events in the test set, and benchmark it against state-of-the-art models:
+the stationary Gutenberg-Richter (GR) distribution (fitted over the training set), and a few variants of a moving window GR approach~\cite{gulia_real-time_2019}. It is seen that MAGNET significantly and consistently outperforms all benchmarks across all three regions, as shown in Fig. \ref{fig:metrics}a-c. Further comparison to other benchmarks is given in the supplementary material \yohai{TODO: add the SM}.
+
+In addition to comparing the log-likelihood of the observed data, one can convert the prediction problem to a binary question: will the earthquake at the spacetime query $\textbf{x}_i, t_i$ have be higher than a threshold $m_t$? This can be easily calculated from the prediction, as the probability that $m_i>m_t$ is simply $\int_{m_t}^{\infty}p(m')dm'$.
+This task is more interpretable (will there be a large earthquake?) and can be evaluated using standard binary classification metrics such as area under receiver operator (ROC) curve \cite{Murphy} and under the interpolated precision-recall (PR) curve \cite{buttcher_information_2010} which suit better an imbalanced data set such as ours. Fig.~\ref{fig:metrics}d-f and g-i show these metrics for all three regions in examined and compare against the GR-variant models. Again, MAGNET outperforms all benchmarks.
+
 To further assess performance in terms of predicted magnitudes, Figure \ref{fig:model_output}c presents the marginal probability density function (PDF) of magnitudes for MAGNET (red) compared to common benchmarks on the Southern California dataset. This figure reveals the general trends predicted by each model and facilitates comparison with the commonly used, stationary GR distribution. Furthermore, Fig. \ref{fig:model_output}c includes histograms of the train and test set magnitudes alongside the marginal PDFs.  We observe that the GR distribution closely follows the train set distribution, as expected for a stationary model.  In contrast, MAGNET aligns well with the test set distribution, suggesting its ability to generalize beyond the training data. Notably, dynamic GR benchmarks, exemplified by the "last 300 events" approach,  while exhibiting a better fit to the test set than the stationary GR, lack the detailed features captured by the model's PDF.
 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1\textwidth]{figures/raw_results_hauksson.pdf}
+    \includegraphics[width=0.5\textwidth]{figures/raw_results.pdf}
     \caption{
-        \textbf{Comparison of MAGNET's outputs to benchmarks'}. \textbf{a}, PDFs produced by MAGNET for 100 randomly sampled events from the test set with train set's Gutenberg-Richter distribution (dashed black line). The true magnitude label, i.e. the true magntude of the event in query, is indicated by the color, interpreted by the colorbar at top. \textbf{b}, Likelihoods for returning the magnitude label by MAGNET (red), the 300 events moving window (orange) and the stationary GR (blue dashed line). \textbf{c}, Marginal magnitude distribution, i.e. stationary $p(m)$, produced by MAGNET and common benchmarks for the entire test set. Histograms of the train (and test) set are presented in orange (blue). \neri{c: Is there a more convenient way of showing the two superimposed distributions?}
+        \textbf{Benchmarking MAGNET}. \textbf{a}, PDFs produced by MAGNET for 100 randomly sampled events from the test set with train set's Gutenberg-Richter distribution (dashed black line). The true magnitude label, i.e. the true magntude of the event in query, is indicated by the color, interpreted by the colorbar at top. \textbf{b}, Likelihoods for returning the magnitude label by MAGNET (red), the 300 events moving window (orange) and the stationary GR (blue dashed line). \textbf{c}, Marginal magnitude distribution, i.e. stationary $p(m)$, produced by MAGNET and common benchmarks for the entire test set. Histograms of the train (and test) set are presented in orange (blue). \neri{c: Is there a more convenient way of showing the two superimposed distributions?}
     }
     \label{fig:model_output}
 \end{figure}
 
-
-Quantification of a model's performance in our scheme will be done by averaging on all log-likelihood scores of the test set, as defined in Eq. \ref{eq:loss_function}. Fig. \ref{fig:metrics}a-c shows the minus mean log likelihood score, $\mathcal{L}$ from Eq. \ref{eq:loss_function}, for MAGNET and chosen common benchmarks, for the three regions tested. It can be clearly seen that MAGNET shows a clear an significant average information gain over every benchmark tested. \neri{Should we mention other benchmarks and refer to the SM?}. 
-
-
-
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1\textwidth]{figures/combined_batplots.pdf}
+    \includegraphics[width=1\textwidth]{figures/combined_barplots.pdf}
     \caption{
         \textbf{Metric scores for the MAGNET model, and common benchmark models. a}, \textbf{b}, \textbf{c}, Minus mean information content of our MAGNET model (red) and other common benchmark magnitude predictors (see labels on bars in the figure). A lower score indicated a better preforming model. \textbf{d, e, f}, Receiver Operating Characteristic (ROC) and \textbf{g, h, i} the interpolated precision-recall (PR) curve for a binary classifier determining the existence of a large ($m>=4$) event. The performance of such a classifier can be quantified by the area under the curve (AUC), noted in each frame, color coded identically to the bar plots. For the AUC metrics, a higher score indicated a better preforming classifier.
-        \neri{Organize titles and font sizes}
         }
         \label{fig:metrics}
 \end{figure}
-
-We convert our model to a binary classifier posed with the question: will there be a \textit{large} earthquake in the query space-time coordinates or not? This can easily be done by setting a threshold which defines a "\textit{large}" earthquake, $m_c$ ($=4$ in the examples presented here), then setting examples above that threshold as positive examples and below as negative. The probability of a large event occurring in the query coordinates is given by integrating the output PDF above the threshold, $p=\int_{m_c}^{\infty}p(m')dm'$. Given such binary classifier, it is possible to examine the common binary classifier metrics of area under receiver operator (ROC) curve \cite{Murphy} and under the interpolated precision-recall (PR) curve \cite{buttcher_information_2010} which suit better an imbalanced data set such as ours. \ref{fig:metrics}d-f and g-i show the ROC and interpolated PR curves respectively, for all three regions in examined. The area under the curve (AUC) values are written in the inset of each panel, color coded by the same legend as the bar plots above. It can be seen that throughout all regions MAGNET preforms significantly better than all other benchmarks, indicated by the largest AUC value.
 
    
     
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1\textwidth]{figures/info_over_time_hauksson.pdf}
+    % \includegraphics[width=1\textwidth]{figures/info_over_time_hauksson.pdf}
     \caption{
         \textbf{Analysis of information gain of MAGNET over the benchmark. a,} Information gain of individual events in the Southern California test set. Scattered dots indicate magnitude at event index, colored by the information gain per event (colorbar indicated scale), here warm is an advantage for MAGNET, while cool is an advantage for the benchmark. Secondary horizontal axis (grey) indicates corresponds origin time. Cumulative Information gain (dashed black) and cumulative conditioned information gain (dashed grey) curves are superimposed on the scatter, demonstrating a constantly increasing function. \textbf{b-d}, Information gain (dashed black) and cumulative conditioned information gain (dashed grey) curves for Southern California, New Zealand and Japan test sets, respectively, all three regions examined in this study.\textbf{e-g}, Smoothed instantaneous information gain. Grey cloud shows the standard deviation of the smoothing window. All three curves are predominantly above the zero information gain line (dashed red). \textbf{h-i} Spatial distribution of information gain for all regions in study. Maps show the difference in mean information content per bin, model's advantage is indicated by warm colors, disadvantage by cool colors.
     }
@@ -147,7 +145,7 @@ The information gain achieved by our model for each event can be quantified by t
     \Delta LL_i = \log{p_{\pmb{x_i}, t_i}^{(MAGNET)}(m_i)} - \log{p^{(GR)}(m_i)}
     \label{eq:information_gain}
 \end{equation}
-This equation measures the amount of information gained by using our MAGNET model rather than the GR benchmark, for a specific event. Analyzing this quantity per event across the entire test set reveals patterns indicating where and when our model achieves its advantage. Fig. \ref{fig:info_gain_over_time}a shows the test set for Southern California events magnitudes by their running index, colored according to the information gain as defined in Eq. \ref{eq:information_gain}. This time-domain representation allows us to track the cumulative information gain, calculated over the entire test set and displayed as the black dashed line in the figure. The predominantly increasing trend in cumulative information gain suggests that our model is consistently advantageous as opposed to a concentrated advantage in specific periods. Notably, for the Southern California data set, the most rapid information gain occurs during the aftershocks of the two Ridgecrest earthquakes. Surprisingly, even the pre-shock and main shock events demonstrate positive information gains over the GR benchmark, with values of $0.5$ and $1.4, \ \Delta LL$, respectively, albeit these events are typically considered completely unpredictable. This observation leads to a significant corollary: at least some portion of the information gain likely originates from a statistical signal embedded in the event sequence prior to event's occurrence. This point will be further elaborated upon in the discussion section.
+This equation measures the amount of information gained by using our MAGNET model rather than the GR benchmark, for a specific event. Analyzing this quantity per event across the entire test set reveals patterns indicating where and when our model achieves its advantage. Fig. \ref{fig:info_gain_over_time}a shows the test set for Southern California events magnitudes by their running index, colored according to the information gain as defined in Eq. \ref{eq:information_gain}. This time-domain representation allows us to track the cumulative information gain, calculated over the entire test set and displayed as the black dashed line in the figure. The predominantly increasing trend in cumulative information gain suggests that our model is consistently advantageous as opposed to a concentrated advantage in specific periods. Notably, for the Southern California data set, the most rapid information gain occurs during the aftershocks of the two Ridgecrest earthquakes. Surprisingly, even the pre-shock and main shock events demonstrate positive information gains over the GR benchmark, with values of $0.5$ and $1.4, \ \Delta LL$, respectively, although these events are typically considered completely unpredictable. This observation leads to a significant corollary: at least some portion of the information gain likely originates from a statistical signal embedded in the event sequence prior to event's occurrence. This point will be further elaborated upon in the discussion section.
 \newline
 
 Our analysis reveals a persistent increase in information gain across the test set for all investigated regions (Fig. \ref{fig:info_gain_over_time}b-d). This includes regions previously studied where no information gain was detected using different methods  \cite{ogata_exploring_2018}. Similar domain representations for additional regions can be found in the supplementary material  \neri{TODO: add these colorful plots for NZ and JAPAN to the SM}. Furthermore, the smoothed instantaneous information gain per event, presented in Fig. \ref{fig:info_gain_over_time}e-g, consistently exceeds the threshold for zero information gain marked by the red dashed line.
@@ -217,7 +215,7 @@ Here $a_j, \ b_j$ are the parameters of the Kumaraswamy distribution. $m_c$ is t
 \subparagraph{Last $d$ days} The Gutenberg- Richter (GR) distribution fitted for the events in the past $d$ days. This method is identical to the previous method in all but the definition of the window selection.
 
 
-\subparagraph{Spatially varying Gutenberg Richter} Estimation of the local $\beta$ value is done by following the method of \cite{taroni_highdefinition_2021}. Seismicity data is first binned into $0.1^\circ \times 0.1^\circ$, where the GR distribution is calculated for. beta for a specified location $x_i$ calculated by smoothing the binned values over a radius of 30km around $x_i$. Estimation which consider less than 100 events are discarded.
+\subparagraph{Spatially varying Gutenberg Richter} Estimation of the local $\beta$ value is done by following the method of \cite{taroni_highdefinition_2021}. Seismicity data is first binned into $0.1^\circ \times 0.1^\circ$, where the GR distribution is calculated for. beta for a specified location $x_i$ calculated by smoothing the binned values over a radius of 30km around $x_i$. Estimation which consider less than 150 events are discarded.
 
 \subsection{Measurement of temporal incompleteness}
 Temporal incompleteness is measured at the times of events by fitting the completeness magnitude to a window of 300 events: 150 past events, 1 current event, 149 future events. The window is constructed by the same algorithm, used to construct the \textit{Last $n$ events benchmark}.
@@ -267,12 +265,12 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 \begin{enumerate}
     \item Table: scores of all metrics - \textcolor{red}{\textbf{should I add this??}}
     \item Detailed architecture? - \textcolor{red}{\textbf{Make a nice version}}
-    \item Colorful PDF examples for NZ and Japan
-    \item Marginal distributions for NZ and Japan
+    \item Colorful PDF examples for NZ and Japan - \textcolor{blue}{Done}
+    \item Marginal distributions for NZ and Japan - \textcolor{blue}{Done}
     \item Colored scatter magnitude vs index, NZ and Japan - \textcolor{blue}{\textbf{Done}}
-    \item $m_c(t)$ for all three regions -  - \textcolor{blue}{Done}
-    \item Bar plots of conditioned $<LL>$
-    \item Spatial $m_c(x, y)$ and low $m_c(x, y) \leq m_c^{train}$ bins
+    \item $m_c(t)$ for all three regions - \textcolor{blue}{Done}
+    \item Bar plots of conditioned $<LL>$ - \textcolor{blue}{Done}
+    \item Spatial $m_c(x, y)$ and low $m_c(x, y) \leq m_c^{train}$ bins - \textcolor{blue}{Done}
 \end{enumerate}
 
 \textbf{Grey's Note} \textit{You get up to 10 items in the Extended Data section. All Tables and Figures should be enumerated as "Extended Data Figure 1", "Extended Data Table 1", etc. These must also be referenced the same way in the text. Extended Data tables and figures may be referenced in the main article and/or in the Methods section. I am doing the in-text references to these ED items manually, instead of trying to override the table numbering schemed in Latex. Please update this template to automate that process if you feel like doing that.}
@@ -282,6 +280,22 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 \textit{Each ED figure should be on a separate page.}
 
 \textit{Finally, this note is here in the ED section, but in your paper, the ED section should not have any text except figure and table captions/legends.}
+
+\newpage
+\begin{table}[]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/mean_ll_table.pdf}
+    \caption{Mean log likelihood, $\mathcal{L}$, for additional tested benchmarks.}
+    \label{tab:mean_ll_all_benchmarks}
+\end{table}[h!]
+
+\newpage
+\begin{table}[]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/mean_ll_cond_table.pdf}
+    \caption{Mean log likelihood, $\mathcal{L}$, conditioned on temporal incompletness, for additional tested benchmarks.}
+    \label{tab:mean_ll_all_benchmarks_conditioned}
+\end{table}[h!]
 
 \newpage
 \begin{figure}[h!]
@@ -304,11 +318,52 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 \newpage
 \begin{figure}[h!]
     \centering
-        \includegraphics[width=1\textwidth]{figures/temporal_incompleteness.pdf}
+        % \includegraphics[width=1\textwidth]{figures/temporal_incompleteness.pdf}
     \caption{
     \textbf{Temporal Incompleteness for test sets of all regions examined.} Calculated temporal incompleteness for test sets is presented in red, superimposed over the events above (black) and below (grey) the completeness magnitude of the train set, $m_c^{(train)}$. Events are plotted by the index of their appearance in the test set. Events of low magnitude, $m_c^{(train)}$ (grey), that are not included in the evaluation, are plotted at their interpolated location along the horizontal axis. Data for Japan (c) is displayed only near the 2011 Tōhoku earthquake to reduce data density and enhance clarity of the figure.
     }
     \label{fig:temp_incompleteness}
+\end{figure}
+
+\newpage
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/raw_results_em.pdf}
+    \caption{
+        write the caption
+    }
+    \label{fig:model_output_em}
+\end{figure}
+
+\newpage
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/likelihood_scatter.pdf}
+    \caption{
+        write the caption
+    }
+    \label{fig:labels_likelihood}
+\end{figure}
+
+\newpage
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/combined_barplots_conditioned.pdf}
+    \caption{
+        \textbf{mean ll mc conditioned}
+    }
+    \label{fig:mean_ll_mc_conditioned}
+\end{figure}
+
+
+\newpage
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/completeness_cond.pdf}
+    \caption{
+        \textbf{mean ll conditioned on spatial mc}
+    }
+    \label{fig:mean_ll_conditioned_spatial_mc}
 \end{figure}
 
 
