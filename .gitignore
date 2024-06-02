@@ -8,3 +8,4 @@
 *.log
 *desktop.ini
 article.pdf
+.DS_Store

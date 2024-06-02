@@ -69,12 +69,12 @@ To this end, we construct a neural-based model that predicts the magnitude of a 
 \section{Methodology}
 We construct the MAGnitude Neural EsTimation model, MAGNET, a generative neural network (NN) that receives as input a hypocentral catalog of past regional seismicity, and the time and location of a future event (a ``query''). The network produces a probability density function (PDF) estimating its magnitude. 
 
-MAGNET is composed of two main components. First, the catalog up to time $t$ (not including) is encoded by a long-short term memory (LSTM) unit, which produces a latent representation of the seismic history \yohai{cite LSTM paper}.
+MAGNET is composed of two main components. First, the catalog up to time $t$ (not including) is encoded by a long-short term memory (LSTM) unit, which produces a latent representation of the seismic history \neri{cite Hochreiter, S. and Schmidhuber, J. ürgen. Long short-term memory. Neural Comput. 9, 1735–1780 (1997).}.
 Second, this representation is combined with a space-time query specifying the coordinates, $\bf{x}_i$, $t_i$, of a future earthquake and passed into a fully connected neural network (FCNN) that produces a parametrized PDF of the event's magnitude, $p_{\textbf{x}_i, t_i}(m)$, see Fig. \ref{fig:intro_fig}a. 
 
 Technically, the distribution is modeled as a mixture of two stretched Kumaraswamy distributions \cite{kumaraswamy_generalized_1980} and is parameterized by 5 parameters, which are the output of the network. This parameteric family can  smoothly interpolate between a power-law decaying distribution (resembling the GR distribution), and localized distributions with concentrated mass around a specific value. This allows the model to output both an ``ignorant'' prediction, essentially resembling the GR distribution, and more confident predictions localized around a given magnitude.
 
-The model parameters are optimized to maximize the log likelihood (LL) of the observed magnitudes. Importantly, during training we only supply the model with queries about spacetime coordinates where earthquakes indeed occurred, and only events above the completeness magnitude of the catalog are used as queries. A detailed description of the model's architecture is given in the methods section \neri{TODO}.
+The model parameters are optimized to maximize the log likelihood (LL) of the observed magnitudes. Importantly, during training we only supply the model with queries about spacetime coordinates where earthquakes indeed occurred, and only events above the completeness magnitude of the catalog are used as queries. A detailed description of the model's architecture is given in the methods section.
 
 
 We deployed MAGNET on three distinct earthquake catalogs to assess the performance across diverse seismogenic regions: the Hauksson Catalog \cite{hauksson_waveform_2012} for Southern California, GeoNet \cite{gns_geonet_1970} for New Zealand, and the JMA catalog \cite{noauthor_japan_nodate-1} for Japan. While all three catalogs encompass highly active seismic zones, they are compiled using various measurement methodologies and exhibit varying data quality. A separate model is trained for each region, with identical loss function and parameterization of the PDF. The resulting PDF is presented in Fig. \ref{fig:intro_fig}b for a few examples of major events, superimposed on the stationary GR distribution (fitted on the train set), which is the naive benchmark.
@@ -93,27 +93,27 @@ All metrics reported in this work were evaluated over a time span that is not in
 
 
 \section{Results} \label{sec:results}
-As explained above, the model outputs a PDF $p_{\textbf{x}_i, t_i}$ for each earthquake in the training set. We denote $\ell_i=\log\left(p_{\textbf{x}_i, t_i}(m_i)\right)$, the log-likelihood of the true magnitude $m_i$ as predicted by MAGNET.
-The model is trained to maximize the average log-likelihood of the true magnitudes in the training set, $\mathcal{L} = -\langle \log{ \ell_i } \rangle$, where $\langle \cdot\rangle$ stands for the empirical average over all earthquakes in the data set. 
+As explained above, the model outputs a PDF $p_{\textbf{x}_i, t_i}(m_i)$ for each earthquake in the training set. We denote $\ell_i=\log\left(p_{\textbf{x}_i, t_i}(m_i)\right)$, the log-likelihood of the true magnitude $m_i$ as predicted by MAGNET.  The values of $\ell_i$ for MAGNET and the leading benchmark are presented in Extended Material Fig. \ref{fig:labels_likelihood}.
+
+The model is trained to maximize the average log-likelihood of the true magnitudes in the training set, $\mathcal{L} = -\langle \ell_i \rangle$, where $\langle \cdot\rangle$ stands for the empirical average over all earthquakes in the data set. \neri{I think the two equations in this paragraph should be numbered.}
 
 % Focusing on existing events within the catalog due to our model's requirement for labeled data, our analysis utilizes the space-time coordinates of earthquakes as input. This necessitates excluding queries about arbitrary spatiotemporal points during training and evaluation, as these processes require knowledge of the true magnitude for each event at its specific location and time. Consequently, the raw output for our analysis consists of the model-generated PDFs of possible magnitudes for each event's time and location. 
-
+\neri{I liked this sentence: \textit{Here we demonstrate that MAGNET outperforms all benchmarks in predicting earthquake magnitude, demonstrating that magnitudes are not statistically independent on seismic history.} Don't you think it's good to start with this clam to focus the reader on the objective?}\yohai{yes I do, which is why this is the last sentence in the previous paragraph}
 Figure \ref{fig:model_output}a shows the predicted PDFs for 100 randomly sampled events from the Southern California test set. The PDFs exhibit a clear trend: those that were calculated for higher-magnitude events are skewed towards larger magnitudes (warmer colors) compared to lower-magnitude events (cooler colors). This aligns with the expected behavior for an earthquake magnitude predictor. For comparison, the stationary GR distribution, the naive predictor which is independent of (recent) seismic history, is presented along the model's results.
 
 This is a qualitative demonstration that the model works as expected. For a quantitative comparison, we calculate the $\mathcal{L}=-\langle \ell_i \rangle$ over all events in the test set, and benchmark it against state-of-the-art models:
-the stationary Gutenberg-Richter (GR) distribution (fitted over the training set), and a few variants of a moving window GR approach~\cite{gulia_real-time_2019}. It is seen that MAGNET significantly and consistently outperforms all benchmarks across all three regions, as shown in Fig. \ref{fig:metrics}a-c. Further comparison to other benchmarks is given in the supplementary material \yohai{TODO: add the SM}.
+the stationary Gutenberg-Richter (GR) distribution (fitted over the training set), and a few variants of a moving window GR approach~\cite{gulia_real-time_2019}. It is seen that MAGNET significantly and consistently outperforms all benchmarks across all three regions, as shown in Fig. \ref{fig:metrics}a-c. Further comparison to other benchmarks is given in Extended Data Table \ref{tab:mean_ll_all_benchmarks}.
 
 In addition to comparing the log-likelihood of the observed data, one can convert the prediction problem to a binary question: will the earthquake at the spacetime query $\textbf{x}_i, t_i$ have be higher than a threshold $m_t$? This can be easily calculated from the prediction, as the probability that $m_i>m_t$ is simply $\int_{m_t}^{\infty}p(m')dm'$.
-This task is more interpretable (will there be a large earthquake?) and can be evaluated using standard binary classification metrics such as area under receiver operator (ROC) curve \cite{Murphy} and under the interpolated precision-recall (PR) curve \cite{buttcher_information_2010} which suit better an imbalanced data set such as ours. Fig.~\ref{fig:metrics}d-f and g-i show these metrics for all three regions in examined and compare against the GR-variant models. Again, MAGNET outperforms all benchmarks.
+This task, asking whether a given event will be a large earthquake, is more interpretable and can be evaluated using standard binary classification metrics such as area under receiver operator (ROC) curve \cite{Murphy} and under the interpolated precision-recall (PR) curve \cite{buttcher_information_2010} which suit better an imbalanced data set such as ours. Fig.~\ref{fig:metrics}d-f and g-i show these metrics for all three regions in examined and compare against the GR-variant models. Again, MAGNET outperforms all benchmarks.
 
-To further assess performance in terms of predicted magnitudes, Figure \ref{fig:model_output}c presents the marginal probability density function (PDF) of magnitudes for MAGNET (red) compared to common benchmarks on the Southern California dataset. This figure reveals the general trends predicted by each model and facilitates comparison with the commonly used, stationary GR distribution. Furthermore, Fig. \ref{fig:model_output}c includes histograms of the train and test set magnitudes alongside the marginal PDFs.  We observe that the GR distribution closely follows the train set distribution, as expected for a stationary model.  In contrast, MAGNET aligns well with the test set distribution, suggesting its ability to generalize beyond the training data. Notably, dynamic GR benchmarks, exemplified by the "last 300 events" approach,  while exhibiting a better fit to the test set than the stationary GR, lack the detailed features captured by the model's PDF.
-
+Finally, Figure~\ref{fig:model_output}b presents the marginal probability density function (PDF) of magnitudes for MAGNET's prediction, $P(m)=N^{-1}\sum_i p_{\textbf{x}_i, t_i}(m)$. This represents the average probability distribution of magnitudes over the whole test set. It is seen that although the model was not constrained to do so, the average distribution aligns well with the ``uninformed'' GR distribution. That is, although MAGNET's prediction for each individual earthquake may deviate significantly from the GR distribution, it does reproduce this well known long-time behavior on average. It is also seen that the average prediction of the 300-day moving window GR deviates significantly from thte GR distribution. We also observe that MAGNET's average prediction aligns well with the \emph{test set} GR distribution, rather than the training set, suggesting its ability to generalize beyond the training data. This observation is noticeable even more so in the New Zealand and Japan data sets presented in Extended Data Fig. \ref{fig:model_output_em}.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/raw_results.pdf}
     \caption{
-        \textbf{Benchmarking MAGNET}. \textbf{a}, PDFs produced by MAGNET for 100 randomly sampled events from the test set with train set's Gutenberg-Richter distribution (dashed black line). The true magnitude label, i.e. the true magntude of the event in query, is indicated by the color, interpreted by the colorbar at top. \textbf{b}, Likelihoods for returning the magnitude label by MAGNET (red), the 300 events moving window (orange) and the stationary GR (blue dashed line). \textbf{c}, Marginal magnitude distribution, i.e. stationary $p(m)$, produced by MAGNET and common benchmarks for the entire test set. Histograms of the train (and test) set are presented in orange (blue). \neri{c: Is there a more convenient way of showing the two superimposed distributions?}
+        \textbf{MAGNET's output}. \textbf{a}, PDFs produced by MAGNET for 100 randomly sampled events from the test set, train set's Gutenberg-Richter distribution superimposed (dashed black line). The true magnitude label, i.e. the true magntude of the event in query, is indicated by the color, interpreted by the colorbar at top. \textbf{b}, Marginal magnitude distribution, i.e. stationary $p(m)$, produced by MAGNET and common benchmarks for the entire test set. Histograms of the train (and test) set are presented in orange (blue).
     }
     \label{fig:model_output}
 \end{figure}
@@ -122,7 +122,7 @@ To further assess performance in terms of predicted magnitudes, Figure \ref{fig:
     \centering
     \includegraphics[width=1\textwidth]{figures/combined_barplots.pdf}
     \caption{
-        \textbf{Metric scores for the MAGNET model, and common benchmark models. a}, \textbf{b}, \textbf{c}, Minus mean information content of our MAGNET model (red) and other common benchmark magnitude predictors (see labels on bars in the figure). A lower score indicated a better preforming model. \textbf{d, e, f}, Receiver Operating Characteristic (ROC) and \textbf{g, h, i} the interpolated precision-recall (PR) curve for a binary classifier determining the existence of a large ($m>=4$) event. The performance of such a classifier can be quantified by the area under the curve (AUC), noted in each frame, color coded identically to the bar plots. For the AUC metrics, a higher score indicated a better preforming classifier.
+        \textbf{Benchmarking MAGNET. a}, \textbf{b}, \textbf{c}, Minus mean information content of our MAGNET model (red) and other common benchmark magnitude predictors (see labels on bars in the figure). A lower score indicates a better preforming model. \textbf{d, e, f}, Receiver Operating Characteristic (ROC) and \textbf{g, h, i} the interpolated precision-recall (PR) curve for a binary classifier determining the existence of a large ($m>=4$) event. The performance of such a classifier can be quantified by the area under the curve (AUC), noted in each frame, color coded identically to the bar plots. For the AUC metrics, a higher score indicates a better preforming classifier.
         }
         \label{fig:metrics}
 \end{figure}
@@ -131,16 +131,15 @@ To further assess performance in terms of predicted magnitudes, Figure \ref{fig:
     
 \begin{figure}[h!]
     \centering
-    % \includegraphics[width=1\textwidth]{figures/info_over_time_hauksson.pdf}
+    \includegraphics[width=1\textwidth]{figures/info_over_time_hauksson.pdf}
     \caption{
-        \textbf{Analysis of information gain of MAGNET over the benchmark. a,} Information gain of individual events in the Southern California test set. Scattered dots indicate magnitude at event index, colored by the information gain per event (colorbar indicated scale), here warm is an advantage for MAGNET, while cool is an advantage for the benchmark. Secondary horizontal axis (grey) indicates corresponds origin time. Cumulative Information gain (dashed black) and cumulative conditioned information gain (dashed grey) curves are superimposed on the scatter, demonstrating a constantly increasing function. \textbf{b-d}, Information gain (dashed black) and cumulative conditioned information gain (dashed grey) curves for Southern California, New Zealand and Japan test sets, respectively, all three regions examined in this study.\textbf{e-g}, Smoothed instantaneous information gain. Grey cloud shows the standard deviation of the smoothing window. All three curves are predominantly above the zero information gain line (dashed red). \textbf{h-i} Spatial distribution of information gain for all regions in study. Maps show the difference in mean information content per bin, model's advantage is indicated by warm colors, disadvantage by cool colors.
+        \textbf{Information gain in MAGNET. a,} Information gain of individual events in the Southern California test set. Scattered dots indicate magnitude at event index, colored by the information gain per event (scale indicated by colorbar), here warm is an advantage for MAGNET, while cool is an advantage for the benchmark. Secondary horizontal axis (grey) indicates corresponds origin time. Cumulative Information gain (dashed black) and cumulative conditioned information gain (dashed grey) curves are superimposed on the scatter, demonstrating a constantly increasing function. \textbf{b-d}, Information gain (dashed black) and cumulative conditioned information gain (dashed grey) curves for Southern California, New Zealand and Japan test sets, respectively, all three regions examined in this study.\textbf{e-g}, Smoothed instantaneous information gain. Grey cloud shows the standard deviation of the smoothing window. All three curves are predominantly above the zero information gain line (dashed red). \textbf{h-i} Spatial distribution of information gain for all regions in study. Maps show the difference in mean information content per bin, model's advantage is indicated by warm colors, disadvantage by cool colors.
     }
     \label{fig:info_gain_over_time}
 \end{figure}
     
 
-
-The information gain achieved by our model for each event can be quantified by the difference in log-likelihood (LL) between our model's prediction and the baseline GR predictor:
+It is interesting to ask The information gain achieved by our model for each event can be quantified by the difference in log-likelihood (LL) between our model's prediction and the baseline GR predictor:
 \begin{equation}
     \Delta LL_i = \log{p_{\pmb{x_i}, t_i}^{(MAGNET)}(m_i)} - \log{p^{(GR)}(m_i)}
     \label{eq:information_gain}
@@ -150,6 +149,9 @@ This equation measures the amount of information gained by using our MAGNET mode
 
 Our analysis reveals a persistent increase in information gain across the test set for all investigated regions (Fig. \ref{fig:info_gain_over_time}b-d). This includes regions previously studied where no information gain was detected using different methods  \cite{ogata_exploring_2018}. Similar domain representations for additional regions can be found in the supplementary material  \neri{TODO: add these colorful plots for NZ and JAPAN to the SM}. Furthermore, the smoothed instantaneous information gain per event, presented in Fig. \ref{fig:info_gain_over_time}e-g, consistently exceeds the threshold for zero information gain marked by the red dashed line.
 
+
+\section{Assessment of Measurement Reliability}
+\neri{YOHAI: I've added this title above. thoughts?}\newline
 While the information gain observed in preshock and mainshocks presented above is encouraging, we address a potential concern regarding information gain during high temporal incompleteness periods\cite{stockman_forecasting_2023}. In order to account for the temporal incompleteness artifact, and factor it out of our information gain calculation, we recalculate the likelihood score of each event, $p(m_i)$ , conditioned on the magnitude exceeding a threshold, $\Tilde{m}$:
 
 \begin{equation}
@@ -157,10 +159,13 @@ While the information gain observed in preshock and mainshocks presented above i
     \label{eq:conditioned_likelihood}
 \end{equation}
 
-For our analysis, we set $\Tilde{m} = m_c(t)$, determined dynamically using the maximum curvature method (Weimer and Weiss, 2000) within a window of 150 past and 150 future events. The resulting temporal incompleteness curves are presented in the SM \neri{TODO: add the $m_c(t)$ figure to SM}. After applying the renormalization of Eq. \ref{eq:conditioned_likelihood} the cumulative information gain is recalculated. The result is presented as the grey dashed curved in Fig.  \ref{fig:info_gain_over_time}a, as well as in Fig. \ref{fig:info_gain_over_time}b-d for all three tested regions. Evidently, all conditioned cumulative information gain curves show a steadily increasing trend, supporting the hypothesis that there is information content about the upcoming magnitude in the statistical properties of the catalog, excluding the temporal incompleteness artifact. The mean LL scores of the test set for each data catalog are presented in the supplementary material. \neri{TODO: add conditioned bar plots to SM}.
+For our analysis, we set $\Tilde{m} = m_c(t)$, determined dynamically using the maximum curvature method \cite{wiemer_minimum_2000} within a window of 150 past and 150 current and future events. The resulting temporal incompleteness curves are presented in the Extended Material Fig. \ref{fig:temp_incompleteness}. After applying the renormalization of Eq. \ref{eq:conditioned_likelihood} the cumulative information gain is recalculated. The result is presented as the grey dashed curved in Fig.  \ref{fig:info_gain_over_time}a, as well as in Fig. \ref{fig:info_gain_over_time}b-d for all three tested regions. Evidently, all conditioned cumulative information gain curves show a steadily increasing trend, supporting the hypothesis that there is information content about the upcoming magnitude in the statistical properties of the catalog, excluding the temporal incompleteness artifact. A bar plot comparison of the conditioned mean LL scores are presented in Extended Material Fig. \ref{fig:mean_ll_mc_conditioned}. Extended Material Table \ref{tab:mean_ll_all_benchmarks_conditioned} displays the conditioned scores for all benchmarks tested in this study. \neri{Perhaps the barplot is unecessary?}
 
-Beyond the temporal domain, MAGNET also exhibits an advantageous information gain distribution spatially (Fig. \ref{fig:info_gain_over_time}h-j). Each spatial bin's color represents the average log-likelihood difference between MAGNET's predictions and the common GR benchmark (as defined in Eq. \ref{eq:information_gain}, averaged and applied per bin). Warm colors indicate regions where MAGNET performs better. While the advantage in Southern California appears spatially diffuse, both New Zealand and Japan display concentrations of high advantage at the dataset edges, further from the mainland. We hypothesize this is linked to the high local magnitude of completeness, $m_c(x,y)$, in these regions. To address potential artifacts from spatially varying $m_c(x,y)$, we conducted further analysis. We computed local $m_c(x,y)$ per bin and selected only bins with completeness lower than the entire training set's completeness magnitude, $m_c \left( x,y \right)  \leq m_c^{ \left( train \right) }$. We then used these bins to create a minimal dataset and re-ran the model with all previous metrics. As in prior experiments, MAGNET outperformed benchmarks on this minimal dataset. Details and results of this analysis are provided in the supplementary material. \neri{TODO: add these results of minimal data set to the SM}.
+Beyond the temporal domain, MAGNET also exhibits an advantageous information gain distribution spatially (Fig. \ref{fig:info_gain_over_time}h-j). Each spatial bin's color represents the average log-likelihood difference between MAGNET's predictions and the common GR benchmark (as defined in Eq. \ref{eq:information_gain}, averaged and applied per bin). Warm colors indicate regions where MAGNET performs better. While the advantage in Southern California appears spatially diffuse, both New Zealand and Japan display concentrations of high advantage at the dataset edges, further from the mainland. We hypothesize this is linked to the high local magnitude of completeness, $m_c(x,y)$, in these regions. To address potential artifacts from spatially varying $m_c(x,y)$, we conducted further analysis. We computed local $m_c(x,y)$ per bin and selected only bins with completeness lower than the entire training set's completeness magnitude, $m_c \left( x,y \right)  \leq m_c^{ \left( train \right) }$. We then used these bins to create a minimal dataset and tested the models performance on it. MAGNET holds its advantage in the Southern California and New Zealand datasets. However, MAGNET loses when this analysis is preformed on the Japan dataset. To investigate further, we choose a another subset of the Japan catalog, defined by a tight polygon encompassing the majority of bins that hold. $m_c \left( x,y \right)  \leq m_c^{ \left( train \right) }$ bins. This results in mostly the territory of Honshu, Kyushu and Shikoku islands. We then train a new model for this subset, which, as in the previous experiments, displays MAGNET's superiority for magnitude prediction. We conclude from this procedure that constructing a magnitude prediction model for regions with high variability of $m_c(x,y)$ \textit{is possible}, though it might consist of training different regions separately. Details and results of this analysis are provided in Extended Material Fig. \ref{fig:mean_ll_conditioned_spatial_mc}.
 
+
+\section{Discussion}
+\neri{YOHAI LET'S MEET TO WRITE CMON}
 
 
 % There are two bibliographies in Nature papers. One for the main text, and one for the Methods and Extended Data sections. The numbering is sequential, meaning that the reference section for the Methods and Extended Data section starts after the last number from the main reference section. References should not appear in both sections. Any reference used in Methods or Extended Data that also appears in the main bibliography should *only* appear in the main bibliography.
@@ -263,7 +268,7 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 \newpage
 \section*{Extended Data}
 \begin{enumerate}
-    \item Table: scores of all metrics - \textcolor{red}{\textbf{should I add this??}}
+    \item Table: scores of all metrics - \textcolor{blue}{Done}
     \item Detailed architecture? - \textcolor{red}{\textbf{Make a nice version}}
     \item Colorful PDF examples for NZ and Japan - \textcolor{blue}{Done}
     \item Marginal distributions for NZ and Japan - \textcolor{blue}{Done}
@@ -282,20 +287,22 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 \textit{Finally, this note is here in the ED section, but in your paper, the ED section should not have any text except figure and table captions/legends.}
 
 \newpage
-\begin{table}[]
+\begin{table}[h!]
     \centering
     \includegraphics[width=1\textwidth]{figures/mean_ll_table.pdf}
-    \caption{Mean log likelihood, $\mathcal{L}$, for additional tested benchmarks.}
+    \caption{Mean log likelihood score, $\mathcal{L}$, for various tested benchmarks.}
     \label{tab:mean_ll_all_benchmarks}
-\end{table}[h!]
+\end{table}
+
 
 \newpage
-\begin{table}[]
+\begin{table}[h!]
     \centering
     \includegraphics[width=1\textwidth]{figures/mean_ll_cond_table.pdf}
-    \caption{Mean log likelihood, $\mathcal{L}$, conditioned on temporal incompletness, for additional tested benchmarks.}
+    \caption{Mean log likelihood score, $\mathcal{L}$, as the result is conditioned to be above the temporal incompletness.}
     \label{tab:mean_ll_all_benchmarks_conditioned}
-\end{table}[h!]
+\end{table}
+
 
 \newpage
 \begin{figure}[h!]
@@ -310,7 +317,7 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 	\centering
         \includegraphics[width=1\textwidth]{figures/info_gain_scatter_NZ_and_Japan.pdf}
 	\caption{
-            \textbf{Information gain over time domain for New Zealand and Japan data sets.} This figure presents results for the data sets not displayed in Fig. \ref{fig:info_gain_over_time}a. \textbf{a} Entire test set of New Zealand and a selected time span (\textbf{b}) focusing on the 2016 Te Araroa earthquake and the 2016 Kaikōura earthquake. \textbf{c} The entire Japan data set and a focused time span \textbf{d} of the 2011 Tōhoku earthquake and some of its aftershocks.
+            \textbf{Information gain of MAGNET over the benchmark, New Zealand and Japan data sets.} Scattered dots indicate magnitude at event index, colored by the information gain per event. \textbf{a} Entire test set of New Zealand and a selected time span (\textbf{b}) focusing on the 2016 Te Araroa earthquake and the 2016 Kaikōura earthquake. \textbf{c} The entire Japan data set and a focused time span \textbf{d} of the 2011 Tōhoku earthquake and some of its aftershocks.
          }
 \label{fig:nz_japan_info_gain}
 \end{figure}
@@ -318,7 +325,7 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 \newpage
 \begin{figure}[h!]
     \centering
-        % \includegraphics[width=1\textwidth]{figures/temporal_incompleteness.pdf}
+        \includegraphics[width=1\textwidth]{figures/temporal_incompleteness.pdf}
     \caption{
     \textbf{Temporal Incompleteness for test sets of all regions examined.} Calculated temporal incompleteness for test sets is presented in red, superimposed over the events above (black) and below (grey) the completeness magnitude of the train set, $m_c^{(train)}$. Events are plotted by the index of their appearance in the test set. Events of low magnitude, $m_c^{(train)}$ (grey), that are not included in the evaluation, are plotted at their interpolated location along the horizontal axis. Data for Japan (c) is displayed only near the 2011 Tōhoku earthquake to reduce data density and enhance clarity of the figure.
     }
