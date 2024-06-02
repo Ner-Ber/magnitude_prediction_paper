@@ -147,7 +147,7 @@ It is interesting to ask The information gain achieved by our model for each eve
 This equation measures the amount of information gained by using our MAGNET model rather than the GR benchmark, for a specific event. Analyzing this quantity per event across the entire test set reveals patterns indicating where and when our model achieves its advantage. Fig. \ref{fig:info_gain_over_time}a shows the test set for Southern California events magnitudes by their running index, colored according to the information gain as defined in Eq. \ref{eq:information_gain}. This time-domain representation allows us to track the cumulative information gain, calculated over the entire test set and displayed as the black dashed line in the figure. The predominantly increasing trend in cumulative information gain suggests that our model is consistently advantageous as opposed to a concentrated advantage in specific periods. Notably, for the Southern California data set, the most rapid information gain occurs during the aftershocks of the two Ridgecrest earthquakes. Surprisingly, even the pre-shock and main shock events demonstrate positive information gains over the GR benchmark, with values of $0.5$ and $1.4, \ \Delta LL$, respectively, although these events are typically considered completely unpredictable. This observation leads to a significant corollary: at least some portion of the information gain likely originates from a statistical signal embedded in the event sequence prior to event's occurrence. This point will be further elaborated upon in the discussion section.
 \newline
 
-Our analysis reveals a persistent increase in information gain across the test set for all investigated regions (Fig. \ref{fig:info_gain_over_time}b-d). This includes regions previously studied where no information gain was detected using different methods  \cite{ogata_exploring_2018}. Similar domain representations for additional regions can be found in the supplementary material  \neri{TODO: add these colorful plots for NZ and JAPAN to the SM}. Furthermore, the smoothed instantaneous information gain per event, presented in Fig. \ref{fig:info_gain_over_time}e-g, consistently exceeds the threshold for zero information gain marked by the red dashed line.
+Our analysis reveals a persistent increase in information gain across the test set for all investigated regions (Fig. \ref{fig:info_gain_over_time}b-d). This includes regions previously studied where no information gain was detected using different methods  \cite{ogata_exploring_2018}. Similar domain representations for additional regions can be found in the supplementary material. Furthermore, the smoothed instantaneous information gain per event, presented in Fig. \ref{fig:info_gain_over_time}e-g, consistently exceeds the threshold for zero information gain marked by the red dashed line.
 
 
 \section{Assessment of Measurement Reliability}
@@ -159,7 +159,7 @@ While the information gain observed in preshock and mainshocks presented above i
     \label{eq:conditioned_likelihood}
 \end{equation}
 
-For our analysis, we set $\Tilde{m} = m_c(t)$, determined dynamically using the maximum curvature method \cite{wiemer_minimum_2000} within a window of 150 past and 150 current and future events. The resulting temporal incompleteness curves are presented in the Extended Material Fig. \ref{fig:temp_incompleteness}. After applying the renormalization of Eq. \ref{eq:conditioned_likelihood} the cumulative information gain is recalculated. The result is presented as the grey dashed curved in Fig.  \ref{fig:info_gain_over_time}a, as well as in Fig. \ref{fig:info_gain_over_time}b-d for all three tested regions. Evidently, all conditioned cumulative information gain curves show a steadily increasing trend, supporting the hypothesis that there is information content about the upcoming magnitude in the statistical properties of the catalog, excluding the temporal incompleteness artifact. A bar plot comparison of the conditioned mean LL scores are presented in Extended Material Fig. \ref{fig:mean_ll_mc_conditioned}. Extended Material Table \ref{tab:mean_ll_all_benchmarks_conditioned} displays the conditioned scores for all benchmarks tested in this study. \neri{Perhaps the barplot is unecessary?}
+For our analysis, we set $\Tilde{m} = m_c(t)$, determined dynamically using the maximum curvature method \cite{wiemer_minimum_2000} within a window of 150 past and 150 current and future events. The resulting temporal incompleteness curves are presented in the Extended Material Fig. \ref{fig:temp_incompleteness}. After applying the renormalization of Eq. \ref{eq:conditioned_likelihood} the cumulative information gain is recalculated. The result is presented as the grey dashed curved in Fig.  \ref{fig:info_gain_over_time}a, as well as in Fig. \ref{fig:info_gain_over_time}b-d for all three tested regions. Evidently, all conditioned cumulative information gain curves show a steadily increasing trend, supporting the hypothesis that there is information content about the upcoming magnitude in the statistical properties of the catalog, excluding the temporal incompleteness artifact. Extended Material Table \ref{tab:mean_ll_all_benchmarks_conditioned} displays the conditioned scores for all benchmarks tested in this study.
 
 Beyond the temporal domain, MAGNET also exhibits an advantageous information gain distribution spatially (Fig. \ref{fig:info_gain_over_time}h-j). Each spatial bin's color represents the average log-likelihood difference between MAGNET's predictions and the common GR benchmark (as defined in Eq. \ref{eq:information_gain}, averaged and applied per bin). Warm colors indicate regions where MAGNET performs better. While the advantage in Southern California appears spatially diffuse, both New Zealand and Japan display concentrations of high advantage at the dataset edges, further from the mainland. We hypothesize this is linked to the high local magnitude of completeness, $m_c(x,y)$, in these regions. To address potential artifacts from spatially varying $m_c(x,y)$, we conducted further analysis. We computed local $m_c(x,y)$ per bin and selected only bins with completeness lower than the entire training set's completeness magnitude, $m_c \left( x,y \right)  \leq m_c^{ \left( train \right) }$. We then used these bins to create a minimal dataset and tested the models performance on it. MAGNET holds its advantage in the Southern California and New Zealand datasets. However, MAGNET loses when this analysis is preformed on the Japan dataset. To investigate further, we choose a another subset of the Japan catalog, defined by a tight polygon encompassing the majority of bins that hold. $m_c \left( x,y \right)  \leq m_c^{ \left( train \right) }$ bins. This results in mostly the territory of Honshu, Kyushu and Shikoku islands. We then train a new model for this subset, which, as in the previous experiments, displays MAGNET's superiority for magnitude prediction. We conclude from this procedure that constructing a magnitude prediction model for regions with high variability of $m_c(x,y)$ \textit{is possible}, though it might consist of training different regions separately. Details and results of this analysis are provided in Extended Material Fig. \ref{fig:mean_ll_conditioned_spatial_mc}.
 
@@ -222,6 +222,8 @@ Here $a_j, \ b_j$ are the parameters of the Kumaraswamy distribution. $m_c$ is t
 
 \subparagraph{Spatially varying Gutenberg Richter} Estimation of the local $\beta$ value is done by following the method of \cite{taroni_highdefinition_2021}. Seismicity data is first binned into $0.1^\circ \times 0.1^\circ$, where the GR distribution is calculated for. beta for a specified location $x_i$ calculated by smoothing the binned values over a radius of 30km around $x_i$. Estimation which consider less than 150 events are discarded.
 
+\subparagraph{Kernel density estimation (KDE) of last n events} Selecting the last $n$ events (similar to described in \textit{last $n$ events}) we use the computed KDE as a magnitude predictor for the current timestamp. The KDE is computed using using the SciPy tool\cite{scipy_2020} with 'scott' estimator bandwidth\cite{scott_2015}.
+
 \subsection{Measurement of temporal incompleteness}
 Temporal incompleteness is measured at the times of events by fitting the completeness magnitude to a window of 300 events: 150 past events, 1 current event, 149 future events. The window is constructed by the same algorithm, used to construct the \textit{Last $n$ events benchmark}.
 
@@ -231,6 +233,8 @@ Temporal incompleteness is measured at the times of events by fitting the comple
 \section*{Data and code availability}
 The datasets analysed during the current study are available in the relevant references mentioned throught the article.
 The code for analysing the data is available in \textcolor{red}{\textbf{**link TBD**}}
+
+Country borders in this work are plotted using data from https://geojson-maps.kyd.au/ .
 % This is a required section. Guidelines for data availability: \url{https://www.nature.com/documents/nr-data-availability-statements-data-citations.pdf}.
 
 \newpage
@@ -240,7 +244,10 @@ The code for analysing the data is available in \textcolor{red}{\textbf{**link T
 Zlydenko, O. et al. A neural encoder for earthquake rate forecasting. Sci Rep 13, 12350 (2023).
 \bibitem{taroni_highdefinition_2021}
 Taroni, M., Zhuang, J. \& Marzocchi, W. High‐Definition Mapping of the Gutenberg–Richter b‐Value and Its Relevance: A Case Study in Italy. Seismological Research Letters 92, 3778–3784 (2021).
-  
+\bibitem{scott_2015}
+Scott, David W. Multivariate density estimation: theory, practice, and visualization. John Wiley \& Sons, 2015.  
+\bibitem{scipy_2020}
+Virtanen, P., Gommers, R., Oliphant, T.E. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 17, 261–272 (2020).
 
 
 
@@ -317,7 +324,7 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
 	\centering
         \includegraphics[width=1\textwidth]{figures/info_gain_scatter_NZ_and_Japan.pdf}
 	\caption{
-            \textbf{Information gain of MAGNET over the benchmark, New Zealand and Japan data sets.} Scattered dots indicate magnitude at event index, colored by the information gain per event. \textbf{a} Entire test set of New Zealand and a selected time span (\textbf{b}) focusing on the 2016 Te Araroa earthquake and the 2016 Kaikōura earthquake. \textbf{c} The entire Japan data set and a focused time span \textbf{d} of the 2011 Tōhoku earthquake and some of its aftershocks.
+            \textbf{Information gain of MAGNET over the benchmark, New Zealand and Japan data sets.} Scattered dots indicate magnitude at event index, colored by the information gain per event. \textbf{a} Entire test set of New Zealand and a selected time span (\textbf{b}) focusing on the 2016 Te Araroa earthquake and the 2016 Kaikōura earthquake. \textbf{c} The entire Japan data set and a focused time span \textbf{d} of the 2011 Tōhoku earthquake and some of its aftershocks. Low magnitude data points in a, c and d are subsampled to ease on image rendering.
          }
 \label{fig:nz_japan_info_gain}
 \end{figure}
@@ -327,7 +334,7 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
     \centering
         \includegraphics[width=1\textwidth]{figures/temporal_incompleteness.pdf}
     \caption{
-    \textbf{Temporal Incompleteness for test sets of all regions examined.} Calculated temporal incompleteness for test sets is presented in red, superimposed over the events above (black) and below (grey) the completeness magnitude of the train set, $m_c^{(train)}$. Events are plotted by the index of their appearance in the test set. Events of low magnitude, $m_c^{(train)}$ (grey), that are not included in the evaluation, are plotted at their interpolated location along the horizontal axis. Data for Japan (c) is displayed only near the 2011 Tōhoku earthquake to reduce data density and enhance clarity of the figure.
+    \textbf{Temporal Incompleteness for test sets of all regions examined.} Calculated temporal incompleteness for test sets is presented in red, superimposed over the events above (black) and below (grey) the completeness magnitude of the train set, $m_c^{(train)}$. Events are plotted by the index of their appearance in the test set. Events of low magnitude, $m_c^{(train)}$ (grey), that are not included in the evaluation, are plotted at their interpolated location along the horizontal axis. Data for Japan (c) is displayed only near the 2011 Tōhoku earthquake to reduce data density and enhance clarity of the figure. Low magnitude data points in b and c are subsampled to ease on image rendering.
     }
     \label{fig:temp_incompleteness}
 \end{figure}
@@ -337,7 +344,7 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
     \centering
     \includegraphics[width=1\textwidth]{figures/raw_results_em.pdf}
     \caption{
-        write the caption
+        \textbf{MAGNET’s output for Japan and New Zealand data sets}. \textbf{a} (\textbf{c}), PDFs produced by MAGNET for 100 randomly sampled events from the test set of the New Zealand (Japan) data set, with the train set’s Gutenberg-Richter distribution superimposed (dashed black line). The true magnitude label, i.e. the true magntude of the event in query, is indicated by the color, interpreted by the colorbar in a. \textbf{b} (\textbf{d}), Marginal magnitude distribution, i.e. stationary p(m), for the New Zealand (Japan) data set. Histograms of the train and test sets are presented in orange and blue respectively.
     }
     \label{fig:model_output_em}
 \end{figure}
@@ -347,20 +354,20 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
     \centering
     \includegraphics[width=1\textwidth]{figures/likelihood_scatter.pdf}
     \caption{
-        write the caption
+    \textbf{Log-likelihood of the true magnitude, $ell_i$}. The likelihood for the true magnitude label of the test set for each data set, $\ell_i=\log\left(p_{\textbf{x}_i, t_i}(m_i)\right)$, as defined in main text. $\ell_i$ values of MAGNET and the last 300 events benchmark are shown in red and orange respectively. The blue dashed line indicates the values that the GR benchmark would obtain.
     }
     \label{fig:labels_likelihood}
 \end{figure}
 
-\newpage
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=1\textwidth]{figures/combined_barplots_conditioned.pdf}
-    \caption{
-        \textbf{mean ll mc conditioned}
-    }
-    \label{fig:mean_ll_mc_conditioned}
-\end{figure}
+% \newpage
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=1\textwidth]{figures/combined_barplots_conditioned.pdf}
+%     \caption{
+%         \textbf{mean ll mc conditioned}
+%     }
+%     \label{fig:mean_ll_mc_conditioned}
+% \end{figure}
 
 
 \newpage
@@ -368,7 +375,7 @@ N.B., O.Z., O.G. and Y.B.S. designed the research. N.B. conducted the experiment
     \centering
     \includegraphics[width=1\textwidth]{figures/completeness_cond.pdf}
     \caption{
-        \textbf{mean ll conditioned on spatial mc}
+        \textbf{Spatial effects on MAGNET's performance.} \textbf{a-d} Mean log likelihood scores, $\mathcal{L}$, of events contained in bins which hold $m_c(x,y) \leq m_c$, presented in \textbf{e-h}. The data set Japan polygon is a tight polygon surrounding the main cluster of low completeness bins in the Japan data set (detailed in main text). \textbf{i-l} display the full data set's $m_c(x,y)$ spatial distribution.
     }
     \label{fig:mean_ll_conditioned_spatial_mc}
 \end{figure}
