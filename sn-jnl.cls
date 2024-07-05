@@ -873,15 +873,15 @@
 {\@DOI}}%
 
 %% Opening Page Style      
-\def\ps@titlepage{%
-     %%\def\@oddhead{\vbox{\vskip-36pt\hbox to \textwidth{\hfill\includegraphics{springer-nature-logo}\hspace*{-1pt}}}}%
-     %%\let\@oddhead\@empty\let\@evenhead\@empty%
-      \def\@oddhead{%
-      \vbox to 0pt{\vspace*{-38pt}%
-         \hbox to \hsize{\hfill Springer Nature 2021 \LaTeX\ template\hfill}}}%%
-     \let\@evenhead\@oddhead%
-     \def\@oddfoot{\vbox to 18pt{\vfill\reset@font\rmfamily\hfil\thepage\hfil}}%%
-     \def\@evenfoot{}}%
+% \def\ps@titlepage{%
+%      %%\def\@oddhead{\vbox{\vskip-36pt\hbox to \textwidth{\hfill\includegraphics{springer-nature-logo}\hspace*{-1pt}}}}%
+%      %%\let\@oddhead\@empty\let\@evenhead\@empty%
+%       \def\@oddhead{%
+%       \vbox to 0pt{\vspace*{-38pt}%
+%          \hbox to \hsize{\hfill Springer Nature 2021 \LaTeX\ template\hfill}}}%%
+%      \let\@evenhead\@oddhead%
+%      \def\@oddfoot{\vbox to 18pt{\vfill\reset@font\rmfamily\hfil\thepage\hfil}}%%
+%      \def\@evenfoot{}}%
 
 \def\ps@plain{\let\@mkboth\@gobbletwo%
 \let\@oddhead\@empty\let\@evenhead\@empty%
